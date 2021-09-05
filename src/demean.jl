@@ -1,7 +1,9 @@
-using Statistics
+export demean!
+
+using Statistics: mean
 
 function demean!(A::AbstractArray)
-    mean = mean(A)
-    A .-= mean
+    μ = mean(A)
+    A .-= μ
     return nothing
 end
