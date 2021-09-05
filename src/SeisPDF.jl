@@ -1,3 +1,5 @@
+module SeisPDF
+
 # Read input trace
 
 # Read response file
@@ -8,6 +10,7 @@
 # Detrend
 
 # Demean
+include("demean.jl")
 
 # FFT
 
@@ -17,3 +20,5 @@
 # end segment
 
 # Calculate PDF summary
+
+end

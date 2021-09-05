@@ -2,6 +2,6 @@ using Statistics
 
 function demean!(A::AbstractArray)
     mean = mean(A)
-    A -= mean
+    A .-= mean
     return nothing
 end

@@ -1,2 +1,7 @@
+nane = "SeisPDF"
+uuid = "724aefe2-fcf9-4672-ae74-24b98027dbbf"
+version = "0.0.1"
+authors = ["Cuda Chen <clh960254@gmail.com>"]
+
 [deps]
 SeisIO = "b372bb87-02dd-52bb-bcf6-c30dd83fd342"
