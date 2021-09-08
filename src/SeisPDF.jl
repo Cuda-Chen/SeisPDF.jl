@@ -8,6 +8,7 @@ module SeisPDF
 
 # For each 15-minute segment
 # Detrend
+include("detrend.jl")
 
 # Demean
 include("demean.jl")
