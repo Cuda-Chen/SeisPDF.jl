@@ -1,11 +1,10 @@
+using Statistics: mean
 
 # Test detrend function
 @testset "Detrend Test" begin
-    arr = [1, 2, 3, 4, 5]
-    arr_ref = [0, 0, 0, 0, 0]
+    arr = [1.1, 1.2, 1.3, 1.4, 1.5]
+    ϵ = 1e-6
     detrend!(arr)
-    
-    @testset "Arrays $i" for i in 1:5
-        @test abs(arr[i] - arr_ref[i]) < 1e-6
-    end
+    μ = mean(arr)
+    @test μ < ϵ
 end
