@@ -4,5 +4,8 @@
     arr = [1, 2, 3, 4, 5]
     arr_ref = [0, 0, 0, 0, 0]
     detrend!(arr)
-    @test arr == arr_ref
+    
+    @testset "Arrays $i" for i in 1:5
+        @test abs(arr[i] - arr_ref[i]) < 1e-6
+    end
 end
