@@ -16,6 +16,10 @@ include("demean.jl")
 # FFT
 
 # Remove response
+include("remove_response.jl")
+
+# Taper
+include("taper.jl")
 
 # Calculate PSD
 # end segment
