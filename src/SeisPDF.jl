@@ -14,6 +14,7 @@ include("detrend.jl")
 include("demean.jl")
 
 # FFT
+include("compute_fft.jl")
 
 # Remove response
 include("remove_response.jl")
