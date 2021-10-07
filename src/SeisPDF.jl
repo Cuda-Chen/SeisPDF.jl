@@ -3,6 +3,7 @@ module SeisPDF
 # Read input trace
 
 # Read response file
+include("read_response.jl")
 
 # Split trace to 1-hour then 15-minute
 
