@@ -18,12 +18,12 @@ function read_resp_from_sacpz(input_sacpz::String, sampling_rate::Float64, N::In
             constant = parse(Float64, contents[2])
         elseif contents[1] == "ZEROS"
             zeros_size = parse(Int64, contents[2])
-            global zeros = Vector{Complex{Float64}}(undef, zeros_size)
+            global zeros = Base.zeros(Complex{Float64}, zeros_size)
             read_zeros = true
             read_poles = false
         elseif contents[1] == "POLES"
             poles_size = parse(Int64, contents[2])
-            global poles = Vector{Complex{Float64}}(undef, poles_size)
+            global poles = Base.zeros(Complex{Float64}, poles_size)
             read_zeros = false
             read_poles = true
         else
