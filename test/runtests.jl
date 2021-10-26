@@ -1,7 +1,10 @@
 using Test
+using Dates
+using SeisIO
 
 using SeisPDF
 
+include("test_slicing.jl")
 include("test_read_response.jl")
 include("test_demean.jl")
 include("test_detrend.jl")
