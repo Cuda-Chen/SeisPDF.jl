@@ -6,6 +6,7 @@ module SeisPDF
 include("read_response.jl")
 
 # Split trace to 1-hour then 15-minute
+include("slicing.jl")
 
 # For each 15-minute segment
 # Detrend
