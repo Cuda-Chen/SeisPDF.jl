@@ -1,3 +1,5 @@
+[![][action-img]][action-url]
+
 # SeisPDF.jl
 Power Spectral Density Probability Density Functions Calculation
 describe by [McMarana 2004](https://pubs.usgs.gov/of/2005/1438/).
@@ -9,3 +11,7 @@ describe by [McMarana 2004](https://pubs.usgs.gov/of/2005/1438/).
 - [ ] GPU support
     - [ ] CUDA
     - [ ] AMD
+
+<!-- URLS -->
+[action-img]: https://github.com/Cuda-Chen/SeisPDF.jl/workflows/CI/badge.svg
+[action-url]: https://github.com/Cuda-Chen/SeisPDF.jl/actions
