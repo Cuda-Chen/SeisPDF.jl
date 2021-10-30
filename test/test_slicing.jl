@@ -24,6 +24,7 @@ end
     A = rand(Float64, Int(N * fs))
     segment_len = 900 # 15-minute long segment
     segment_step = 225 # 75% overlapping
+    overlapping_area = segment_len / segment_step - 1
     starttime = d2u(DateTime(Date(now())))
     endtime = starttime + length(A) / fs - 1 / fs
 
@@ -31,7 +32,7 @@ end
     # test first column
     @test out[:, 1] == A[1:Int(segment_len * fs)]
     # test overlap
-    @test out[Int(segment_step*fs)+1:end, 1] == out[1:Int(segment_step*fs), 2]
+    @test out[Int(segment_step*fs)+1:end, 1] == out[1:Int(segment_step*fs*overlapping_area), 2]
     @test length(starts) == size(out, 2)
     @test eltype(out) == eltype(A)
 end
