@@ -25,6 +25,7 @@ include("remove_response.jl")
 include("taper.jl")
 
 # Calculate PSD
+include("calculate_psd.jl")
 # end segment
 
 # Calculate PDF summary
