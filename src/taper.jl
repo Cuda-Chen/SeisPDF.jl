@@ -5,7 +5,7 @@ using Base: cos
 # Return a SAC-style cosine taper window with given four corner frequencies.
 function sac_cosine_taper(freqs::AbstractArray, f1, f2, f3, f4, sampling_rate)
     n = size(freqs, 1)
-    taper = Array{Float64}(undef, n)
+    taper = Base.zeros(Float64, n)
 
     # Set taper window
     for i in 1:(div(n, 2) + 1)
