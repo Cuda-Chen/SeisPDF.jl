@@ -28,6 +28,8 @@ include("taper.jl")
 include("calculate_psd.jl")
 # end segment
 
-# Calculate PDF summary
+# Calculate PSD and PDF summary
+include("summarize_psd.jl")
+include("summarize_pdf.jl")
 
 end
