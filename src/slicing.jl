@@ -3,7 +3,7 @@ export slice
 # From SeisNoise
 # https://github.com/tclements/SeisNoise.jl/blob/2a816653f5119c3276421938b136c141b8fa51da/src/slicing.jl#L55
 """
-    slide(A, cc_len, cc_step, fs, starttime, endtime)
+    slice(A, cc_len, cc_step, fs, starttime, endtime)
 Cut `A` into sliding windows of length `cc_len` points and offset `cc_step` points.
 # Arguments
 - `A::AbstractArray`: 1D time series.
