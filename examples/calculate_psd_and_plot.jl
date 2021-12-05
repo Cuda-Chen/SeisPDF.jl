@@ -61,3 +61,10 @@ taper = sac_cosine_taper(freqs, f1, f2, f3, f4, fs)
 for i in 1:length(data)
     fft_result[i] *= taper[i]
 end
+
+# Calculate PSD
+psd = calculate_psd(fft_result, fs)
+
+# Calculate PDF
+
+# Plot PDF
