@@ -1,6 +1,35 @@
-export sac_cosine_taper
+export cosine_taper!, sac_cosine_taper
 
-using Base: cos
+using Base: cos, floor
+
+# TO-DO: unit test
+function cosine_taper!(data::AbstractArray{<:Real}, N::Int64, α::Float64)
+    #w = zeros(eltype(data), N)
+    w = Base.zeros(eltype(data), N)
+
+    # TO-DO: check input data boundary
+
+    # TO-DO: check α boundary
+
+    width = (Int)(floor(α * (N - 1) / 2.0))
+
+    # Calculate cosine consine (Tukey) window
+    # Caculation reference from here:
+    # https://github.com/scipy/scipy/blob/v1.6.3/scipy/signal/windows/windows.py#L795-L875
+    for i in 1:(width + 1)
+        w[i] = 0.5 * (1 + cos(pi * (-1 + 2.0 * (i - 1) / α / (N - 1))))
+    end
+    for i in (width + 1):(N - width)
+        w[i] = 1.0
+    end
+    for i in (N - width + 1):N
+        w[i] = 0.5 * (1 + cos(pi * (-2.0 / α + 1 + 2.0 * (i - 1) / α / (N - 1))))
+    end
+
+    for i in 1:N
+        data[i] *= w[i]
+    end
+end
 
 # Return a SAC-style cosine taper window with given four corner frequencies.
 function sac_cosine_taper(freqs::AbstractArray, f1, f2, f3, f4, sampling_rate)

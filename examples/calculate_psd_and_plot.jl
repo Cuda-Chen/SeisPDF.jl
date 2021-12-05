@@ -17,6 +17,8 @@ response_file = ARGS[2]
 S = read_data("mseed", input_trace_file, memmap=true)
 data = S.x[1]
 fs = S.fs[1]
+response = read_resp_from_sacpz(response_file, fs, length(data))
+
 demean!(data)
 detrend!(data)
 
@@ -44,11 +46,18 @@ println(slices_of_fifteen_minute)
 println(starts_of_fifteen_minute)
 """
 
+# Taper the signal
+cosine_taper!(data, length(data), 0.05)
+
+# FFT
+fft_result = compute_fft(data)
+remove_response!(fft_result, response)
+
+# Band-pass filter for preventing overamplification
 freqs = Array{Float32}(undef, length(data))
 f1, f2, f3, f4 = 1.0, 2.0, 8.0, 9.0
 range!(freqs, fs)
 taper = sac_cosine_taper(freqs, f1, f2, f3, f4, fs)
 for i in 1:length(data)
-    data[i] *= taper[i]
+    fft_result[i] *= taper[i]
 end
-print(data)
