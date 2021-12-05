@@ -11,6 +11,19 @@ function range!(freq::AbstractArray, sampling_rate)
     return nothing
 end
 
+@testset "Cosine Taper Test" begin
+    n = 18000
+    data = ones(Float64, n);
+    α = 0.05
+
+    cosine_taper!(data, n, α)
+
+    for i in 1:n
+        @test data[i] <= 1.0
+        @test data[i] >= 0.0
+    end
+end
+
 @testset "SAC Taper Test" begin
     n = 18000
     data = ones(Float64, n)
