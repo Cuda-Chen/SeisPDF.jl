@@ -93,13 +93,13 @@ function summarize_psd(psd_bin::AbstractArray{<:Real, 2}, sampling_rate::Float64
 
     psd_result = Array{eltype(psd_bin_reduced)}(undef, 4, len_freqs)
     for i in 1:len_freqs
-        psd_result[1, i] = mean(psd_bin_reduced[:, i]) # mean
+        psd_result[1, i] = decibel(mean(psd_bin_reduced[:, i])) # mean
 
         min_and_max = extrema(psd_bin_reduced[:, i])
-        psd_result[2, i] = min_and_max[1] # min
-        psd_result[3, i] = min_and_max[2] # max
+        psd_result[2, i] = decibel(min_and_max[1]) # min
+        psd_result[3, i] = decibel(min_and_max[2]) # max
 
-        psd_result[4, i] = median(psd_bin_reduced[:, i]) # median
+        psd_result[4, i] = decibel(median(psd_bin_reduced[:, i])) # median
     end
 
     return psd_result
