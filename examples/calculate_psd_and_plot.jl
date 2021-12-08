@@ -64,7 +64,14 @@ end
 
 # Calculate PSD
 psd = calculate_psd(fft_result, fs)
+psd = reshape(psd, 1, :) # Change to 2-D for demo purpose
+smooth_width_factor = 1.5
+psd_reduced = summarize_psd(psd, fs, smooth_width_factor)
 
 # Calculate PDF
+println(size(psd_reduced[1, :]))
+psd_reduced_mean = reshape(psd_reduced[1, :], 1, :)
+println(size(psd_reduced_mean))
+pdf_mean = summarize_pdf(psd_reduced_mean)
 
 # Plot PDF
