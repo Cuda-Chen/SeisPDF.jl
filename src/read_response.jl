@@ -1,7 +1,7 @@
 export read_resp_from_sacpz
 
 # Set the response to acceleration
-flag = 2
+const flag = 2
 
 function read_resp_from_sacpz(input_sacpz::String, sampling_rate::Float64, N::Int)
     read_zeros = false
@@ -65,7 +65,7 @@ function create_resp(poles::Vector{Complex{Float64}},
         omega = 2 * π * freqs[i]
         i_omega = 0. + omega * im
 
-        for j = 1:size(zeros, 1)
+        for j = 1:(size(zeros, 1) - flag)
             numerator *= (i_omega - zeros[j])
         end
         for j = 1:size(poles, 1)

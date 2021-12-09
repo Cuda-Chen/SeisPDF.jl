@@ -1,3 +1,4 @@
+using GMT
 using SeisIO: read_data
 using SeisPDF
 
@@ -55,7 +56,7 @@ remove_response!(fft_result, response)
 
 # Band-pass filter for preventing overamplification
 freqs = Array{Float32}(undef, length(data))
-f1, f2, f3, f4 = 1.0, 2.0, 8.0, 9.0
+f1, f2, f3, f4 = 0.005, 0.05, 9.8, 10.0
 range!(freqs, fs)
 taper = sac_cosine_taper(freqs, f1, f2, f3, f4, fs)
 for i in 1:length(data)
@@ -66,7 +67,7 @@ end
 psd = calculate_psd(fft_result, fs)
 psd = reshape(psd, 1, :) # Change to 2-D for demo purpose
 smooth_width_factor = 1.5
-psd_reduced = summarize_psd(psd, fs, smooth_width_factor)
+psd_reduced, center_periods = summarize_psd(psd, fs, smooth_width_factor)
 
 # Calculate PDF
 println(size(psd_reduced[1, :]))
@@ -75,3 +76,4 @@ println(size(psd_reduced_mean))
 pdf_mean = summarize_pdf(psd_reduced_mean)
 
 # Plot PDF
+imshow(pdf_mean)
