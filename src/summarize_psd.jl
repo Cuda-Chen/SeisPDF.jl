@@ -17,7 +17,7 @@ function calculate_freq_range(sampling_rate::Float64, N::Int64)
     return range_arr
 end
 
-function get_left_and_right_freq(sampling_rate::Float64, window_length::Int64, smoothing_width_factor::Float64)
+function get_freqs_and_periods(sampling_rate::Float64, window_length::Int64, smoothing_width_factor::Float64)
     nyquiest_freq = sampling_rate / 2.0
     octave_step = 2 ^ 0.125
     count = 0
@@ -40,6 +40,7 @@ function get_left_and_right_freq(sampling_rate::Float64, window_length::Int64, s
 
     left_freqs = Array{Float64}(undef, count)
     right_freqs = Array{Float64}(undef, count)
+    center_periods = Array{Float64}(undef, count)
 
     # Set the left and right frequency of each octave
     ts = 1. / fh
@@ -49,11 +50,12 @@ function get_left_and_right_freq(sampling_rate::Float64, window_length::Int64, s
         fl = 1. / tl
         left_freqs[i] = fh;
         right_freqs[i] = fl;
+        center_periods[i] = sqrt(ts * tl)
         ts *= octave_step
         tl *= octave_step
     end
 
-    return left_freqs, right_freqs
+    return left_freqs, right_freqs, center_periods
 end
 
 function summarize_psd(psd_bin::AbstractArray{<:Real, 2}, sampling_rate::Float64, smoothing_width_factor::Float64)
@@ -69,10 +71,8 @@ function summarize_psd(psd_bin::AbstractArray{<:Real, 2}, sampling_rate::Float64
         psd_result[4, i] = median(psd_bin[:, i]) # median
     end"""
 
-    # Set unit to decibel (dB)
-
     # Dimension reduction technique escribed in McMarana 2004
-    left_freqs, right_freqs = get_left_and_right_freq(sampling_rate, N, smoothing_width_factor)
+    left_freqs, right_freqs, center_periods = get_freqs_and_periods(sampling_rate, N, smoothing_width_factor)
     len_freqs = size(left_freqs, 1)
     estimated_freqs = calculate_freq_range(sampling_rate, N)
     #psd_bin_reduced = zeros(eltype(psd_bin), num_segments, len_freqs)
@@ -91,6 +91,7 @@ function summarize_psd(psd_bin::AbstractArray{<:Real, 2}, sampling_rate::Float64
         end
     end
 
+    # Set unit to decibel (dB)
     psd_result = Array{eltype(psd_bin_reduced)}(undef, 4, len_freqs)
     for i in 1:len_freqs
         psd_result[1, i] = decibel(mean(psd_bin_reduced[:, i])) # mean
@@ -102,5 +103,5 @@ function summarize_psd(psd_bin::AbstractArray{<:Real, 2}, sampling_rate::Float64
         psd_result[4, i] = decibel(median(psd_bin_reduced[:, i])) # median
     end
 
-    return psd_result
+    return psd_result, center_periods
 end

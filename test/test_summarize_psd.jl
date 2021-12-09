@@ -22,8 +22,10 @@ end
     expect_min = decibel(1.)
     expect_max = decibel(13.)
     expect_median = decibel(7.)
-    result = summarize_psd(data, fs, smoothing_width_factor)
+    result, center_periods = summarize_psd(data, fs, smoothing_width_factor)
     @test eltype(result) == T
+    @test eltype(center_periods) == T
+    @test size(result[1, :]) == size(center_periods)
     @test result[1, 1] - expect_mean <= ϵ
     @test result[2, 1] - expect_min <= ϵ
     @test result[3, 1] - expect_max <= ϵ
