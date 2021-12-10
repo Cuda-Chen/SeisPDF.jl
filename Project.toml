@@ -14,5 +14,6 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
 FFTW = "1"
+GMT = "0.39"
 HDF5 = "0.15"
 SeisIO = "1"
