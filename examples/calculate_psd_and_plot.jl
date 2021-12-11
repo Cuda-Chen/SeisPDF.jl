@@ -70,10 +70,27 @@ smooth_width_factor = 1.5
 psd_reduced, center_periods = summarize_psd(psd, fs, smooth_width_factor)
 
 # Calculate PDF
-println(size(psd_reduced[1, :]))
 psd_reduced_mean = reshape(psd_reduced[1, :], 1, :)
-println(size(psd_reduced_mean))
 pdf_mean = summarize_pdf(psd_reduced_mean)
 
 # Plot PDF
-imshow(pdf_mean)
+period_max = log10(maximum(center_periods))
+period_min = log10(minimum(center_periods))
+center_periods_interval_in_logscale = log10(center_periods[2]) - log10(center_periods[1])
+
+# Create netCDF grid
+pdf_mean = reshape(pdf_mean, :)
+pdf_mean_grid = xyz2grd(pdf_mean, R="$period_min/$period_max/-200/-50", I="$center_periods_interval_in_logscale/1", Z="TLA", V=true)
+
+
+pdf_mean_min = minimum(pdf_mean)
+pdf_mean_max = maximum(pdf_mean)
+g_cpt = makecpt(color=:rainbow, T="$pdf_mean_min/$pdf_mean_max")
+periods = collect(pdf_mean_min:pdf_mean_max:center_periods_interval_in_logscale)
+powers = collect(-200:-50:1)
+
+#grdview(pdf_mean_grid, J="X6i/5i", frame=(xlabel="log10(Period)", ylabel="Power [10log10(m**2/sec**4/Hz)] [dB]", axes=:WSne), color=g_cpt, S=100, Q="s", N=0, V=true, Y="4.0", show=true)
+grdview(pdf_mean_grid, J="X6i/5i", frame=(xlabel="log10(Period)", ylabel="Power [10log10(m**2/sec**4/Hz)] [dB]", axes=:WSne), color=g_cpt, V=true)
+#imshow(pdf_mean, x=periods, y=powers; proj=:logx)
+#imshow(pdf_mean, proj=:log)
+colorbar!(g_cpt, B="0.02", D="6.15i/2.5i/5.0i/0.25i", V=true, show=true)
