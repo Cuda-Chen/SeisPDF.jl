@@ -90,7 +90,11 @@ periods = collect(pdf_mean_min:pdf_mean_max:center_periods_interval_in_logscale)
 powers = collect(-200:-50:1)
 
 #grdview(pdf_mean_grid, J="X6i/5i", frame=(xlabel="log10(Period)", ylabel="Power [10log10(m**2/sec**4/Hz)] [dB]", axes=:WSne), color=g_cpt, S=100, Q="s", N=0, V=true, Y="4.0", show=true)
-grdview(pdf_mean_grid, J="X6i/5i", frame=(xlabel="log10(Period)", ylabel="Power [10log10(m**2/sec**4/Hz)] [dB]", axes=:WSne), color=g_cpt, V=true)
+#grdview(pdf_mean_grid, J="X6i/5i", frame=(xlabel="log10(Period)", ylabel="Power [10log10(m**2/sec**4/Hz)] [dB]", axes=:WSne, ), color=g_cpt , V=true, show=true, colorbar=true)
+grdview(pdf_mean_grid, J="X6i/5i", 
+        xaxis=(annot=:auto, ticks=:auto, label="log10(Period)",), 
+        yaxis=(annot=:auto, ticks=:auto, label="Power [10log10(m**2/sec**4/Hz)] [dB]",),
+        color=g_cpt, V=true, colorbar=true, show=true)
 #imshow(pdf_mean, x=periods, y=powers; proj=:logx)
 #imshow(pdf_mean, proj=:log)
-colorbar!(g_cpt, B="0.02", D="6.15i/2.5i/5.0i/0.25i", V=true, show=true)
+#colorbar!(g_cpt, B="0.02", D="6.15i/2.5i/5.0i/0.25i", V=true, show=true)
