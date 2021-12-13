@@ -94,7 +94,8 @@ powers = collect(-200:-50:1)
 grdview(pdf_mean_grid, J="X6i/5i", 
         xaxis=(annot=:auto, ticks=:auto, label="log10(Period)",), 
         yaxis=(annot=:auto, ticks=:auto, label="Power [10log10(m**2/sec**4/Hz)] [dB]",),
-        color=g_cpt, V=true, colorbar=true, show=true)
+        color=g_cpt, V=true, S=100, Q="s", Y=4.0,
+        colorbar=true, show=true)
 #imshow(pdf_mean, x=periods, y=powers; proj=:logx)
 #imshow(pdf_mean, proj=:log)
 #colorbar!(g_cpt, B="0.02", D="6.15i/2.5i/5.0i/0.25i", V=true, show=true)
