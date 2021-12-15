@@ -18,6 +18,7 @@ response_file = ARGS[2]
 S = read_data("mseed", input_trace_file, memmap=true)
 data = S.x[1]
 fs = S.fs[1]
+data_length = Int(86400 * fs) # Not a good practice
 response = read_resp_from_sacpz(response_file, fs, length(data))
 
 demean!(data)
