@@ -35,7 +35,7 @@ function slice(A::AbstractArray, cc_len::Real, cc_step::Real, fs::AbstractFloat,
         out = Array{eltype(A),2}(undef, window_samples,length(starts))
         s = convert.(Int, round.((hcat(starts,ends) .- starttime) .* fs .+ 1.))
         @inbounds for ii in eachindex(starts)
-            out[:,ii] .= @view(A[s[ii,1]:s[ii,2]])
+            out[:,ii] .= @view(A[s[ii,1]:s[ii,1] + window_samples - 1]) # To make sure dimension is consistent
         end
 
     end
