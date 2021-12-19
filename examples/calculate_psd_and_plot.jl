@@ -30,22 +30,22 @@ one_hour_step = 1800
 #print(size(S.t[1]))
 one_hour_starttime = S.t[1][1, 2]
 one_hour_endtime = one_hour_starttime + data_length / fs - 1 / fs
-#println(one_hour_starttime, " ", one_hour_endtime)
+println(one_hour_endtime - one_hour_starttime)
 slices_of_one_hour, starts_of_one_hour = slice(data, one_hour_length, one_hour_step, fs, Float64(one_hour_starttime), one_hour_endtime)
-println(size(slices_of_one_hour))
-println(size(starts_of_one_hour))
-
+#println(size(slices_of_one_hour))
+#println(size(starts_of_one_hour))
 
 # 15-minute long segment
-"""
-fifteen_minute_length = 900
-fifteen_minute_step = 225
-fifteen_minute_starttime = Float64(S.t[1][1, 2])
-fifteen_minute_endtime = fifteen_minute_starttime + length(data) / fs - 1 / fs
-slices_of_fifteen_minute, starts_of_fifteen_minute = slice(data, fifteen_minute_length, fifteen_minute_step, fs, fifteen_minute_starttime, fifteen_minute_endtime)
-println(slices_of_fifteen_minute)
-println(starts_of_fifteen_minute)
-"""
+for i in 1:size(slices_of_one_hour, 2)
+    fifteen_minute_length = 900
+    fifteen_minute_step = 225
+    fifteen_minute_starttime = starts_of_one_hour[i]
+    fifteen_minute_endtime = fifteen_minute_starttime + length(slices_of_one_hour[:, i]) / fs - 1 / fs
+    slices_of_fifteen_minute, starts_of_fifteen_minute = slice(slices_of_one_hour[:, i], fifteen_minute_length, fifteen_minute_step, fs, fifteen_minute_starttime, fifteen_minute_endtime)
+    #println(size(slices_of_fifteen_minute))
+    #println(size(starts_of_fifteen_minute))
+end
+
 
 # Taper the signal
 #cosine_taper!(data, length(data), 0.05)
