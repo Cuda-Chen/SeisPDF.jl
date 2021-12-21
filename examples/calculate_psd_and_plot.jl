@@ -2,6 +2,12 @@ using GMT
 using SeisIO: read_data
 using SeisPDF
 
+const one_hour_length = 3600
+const one_hour_step = 1800
+const fifteen_minute_length = 900
+const fifteen_minute_step = 225
+const smooth_width_factor = 1.5
+
 function range!(freq, sampling_rate)
     n = size(freq, 1);
     delta = 1.0 / sampling_rate
@@ -10,6 +16,10 @@ function range!(freq, sampling_rate)
     for i in 1:n
         freq[i] = i / total_duration
     end
+end
+
+function decibel(value::Real)
+    return 10 * log10(value)
 end
 
 input_trace_file = ARGS[1]
@@ -25,8 +35,6 @@ demean!(data)
 detrend!(data)
 
 # 1-hour long segment
-one_hour_length = 3600
-one_hour_step = 1800
 #print(size(S.t[1]))
 one_hour_starttime = S.t[1][1, 2]
 one_hour_endtime = one_hour_starttime + data_length / fs - 1 / fs
@@ -35,15 +43,49 @@ slices_of_one_hour, starts_of_one_hour = slice(data, one_hour_length, one_hour_s
 #println(size(slices_of_one_hour))
 #println(size(starts_of_one_hour))
 
-# 15-minute long segment
-for i in 1:size(slices_of_one_hour, 2)
-    fifteen_minute_length = 900
-    fifteen_minute_step = 225
+#for i in 1:size(slices_of_one_hour, 2)
+println("One hour summation")
+for i in 1:1
+    # 15-minute long segment
     fifteen_minute_starttime = starts_of_one_hour[i]
     fifteen_minute_endtime = fifteen_minute_starttime + length(slices_of_one_hour[:, i]) / fs - 1 / fs
     slices_of_fifteen_minute, starts_of_fifteen_minute = slice(slices_of_one_hour[:, i], fifteen_minute_length, fifteen_minute_step, fs, fifteen_minute_starttime, fifteen_minute_endtime)
     #println(size(slices_of_fifteen_minute))
     #println(size(starts_of_fifteen_minute))
+
+    psd_15min_fake = Array{Float64, 2}(undef, Int(fifteen_minute_length * fs), size(slices_of_fifteen_minute, 2))
+    #println(size(psd_15min_fake))
+    
+    println("15 minutes summation")
+    #for j in 1:size(slices_of_fifteen_minute, 2)
+    for j in 1:1
+        # Deep copy
+        trace = deepcopy(slices_of_fifteen_minute[:, j])
+
+        # Taper the signal
+        cosine_taper!(trace, length(trace), 0.05)
+        
+        # FFT
+        fft_result = compute_fft(trace)
+        # Remove instrument response
+        remove_response!(fft_result, response)
+        
+        # Band-pass filter for preventing overamplification
+        freqs = Array{Float32}(undef, length(trace))
+        f1, f2, f3, f4 = 0.005, 0.05, 9.8, 10.0
+        range!(freqs, fs)
+        taper = sac_cosine_taper(freqs, f1, f2, f3, f4, fs)
+        for idx in 1:length(trace)
+            fft_result[idx] *= taper[idx]
+        end
+        
+        # Calculate PSD
+        psd = calculate_psd(fft_result, fs)
+
+        psd_15min_fake[:, j] = psd
+    end
+
+    psd_result, center_periods = summarize_psd(transpose(psd_15min_fake), fs, smooth_width_factor) 
 end
 
 
