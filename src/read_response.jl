@@ -6,8 +6,8 @@ const flag = 2
 function read_resp_from_sacpz(input_sacpz::String, sampling_rate::Float64, N::Int)
     read_zeros = false
     read_poles = false
-    zeros = Vector{Complex{Float64}}(undef, 1)
-    poles = Vector{Complex{Float64}}(undef, 1)
+    zeros = Array{Complex{Float64}}(undef, 1)
+    poles = Array{Complex{Float64}}(undef, 1)
     zeros_cnt, poles_cnt = 1, 1
     constant = .0
     
@@ -18,12 +18,12 @@ function read_resp_from_sacpz(input_sacpz::String, sampling_rate::Float64, N::In
             constant = parse(Float64, contents[2])
         elseif contents[1] == "ZEROS"
             zeros_size = parse(Int64, contents[2])
-            global zeros = Base.zeros(Complex{Float64}, zeros_size)
+            zeros = Base.zeros(Complex{Float64}, zeros_size)
             read_zeros = true
             read_poles = false
         elseif contents[1] == "POLES"
             poles_size = parse(Int64, contents[2])
-            global poles = Base.zeros(Complex{Float64}, poles_size)
+            poles = Base.zeros(Complex{Float64}, poles_size)
             read_zeros = false
             read_poles = true
         else
@@ -39,7 +39,7 @@ function read_resp_from_sacpz(input_sacpz::String, sampling_rate::Float64, N::In
             end
         end
     end
-
+  
     return create_resp(poles, zeros, constant, sampling_rate, N)
 end
 
