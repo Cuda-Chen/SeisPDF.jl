@@ -27,7 +27,7 @@ function get_freqs_and_periods(sampling_rate::Float64, window_length::Int64, smo
     ts = 1. / fh
     # Long period (i.e. low freqnency)
     fl = 0.0
-    tl = smoothing_width_factor * sampling_rate
+    tl = smoothing_width_factor * ts
     # Long resolvable period
     tr = window_length / 5.0
 
@@ -44,7 +44,7 @@ function get_freqs_and_periods(sampling_rate::Float64, window_length::Int64, smo
 
     # Set the left and right frequency of each octave
     ts = 1. / fh
-    tl = smoothing_width_factor
+    tl = smoothing_width_factor * ts
     for i in 1:count
         fh = 1. / ts
         fl = 1. / tl
@@ -72,7 +72,7 @@ function summarize_psd(psd_bin::AbstractArray{<:Real, 2}, sampling_rate::Float64
     end"""
 
     # Dimension reduction technique escribed in McMarana 2004
-    left_freqs, right_freqs, center_periods = get_freqs_and_periods(sampling_rate, N, smoothing_width_factor)
+    left_freqs, right_freqs, center_periods = get_freqs_and_periods(sampling_rate, (Int64)(N / sampling_rate), smoothing_width_factor)
     len_freqs = size(left_freqs, 1)
     estimated_freqs = calculate_freq_range(sampling_rate, N)
     #psd_bin_reduced = zeros(eltype(psd_bin), num_segments, len_freqs)
@@ -82,7 +82,7 @@ function summarize_psd(psd_bin::AbstractArray{<:Real, 2}, sampling_rate::Float64
             count = 0
             psd_bin_reduced[i, j] = 0
             for k in 1:N
-                if left_freqs[i] >= estimated_freqs[k] && estimated_freqs[k] >= right_freqs[j]
+                if left_freqs[j] >= estimated_freqs[k] && estimated_freqs[k] >= right_freqs[j]
                     psd_bin_reduced[i, j] += psd_bin[i, k]
                     count += 1
                 end
