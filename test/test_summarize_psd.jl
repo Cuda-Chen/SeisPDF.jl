@@ -31,3 +31,21 @@ end
     @test result[3, 1] - expect_max <= ϵ
     @test result[4, 1] - expect_median <= ϵ
 end
+
+# Test the lenght and type of frequency and period arrays
+@testset "get frequency and periods array" begin
+    N = 900 # 900 seconds, i.e. 15 minutes
+    fs = 100.
+    smoothing_width_factor = 2.
+    T = Float64
+
+    left_freqs, right_freqs, center_periods = get_freqs_and_periods(fs, N, smoothing_width_factor)
+    
+    expect_length = 98
+    @test eltype(left_freqs) == T
+    @test eltype(right_freqs) == T
+    @test eltype(center_periods) == T
+    @test length(left_freqs) == expect_length
+    @test length(right_freqs) == expect_length
+    @test length(center_periods) == expect_length
+end

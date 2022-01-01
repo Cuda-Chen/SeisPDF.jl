@@ -1,6 +1,7 @@
 using GMT
 using SeisIO: read_data
 using SeisPDF
+using DelimitedFiles
 
 const one_hour_length = 3600
 const one_hour_step = 1800
@@ -18,10 +19,6 @@ function range!(freq, sampling_rate)
     end
 end
 
-function decibel(value::Real)
-    return 10 * log10(value)
-end
-
 input_trace_file = ARGS[1]
 response_file = ARGS[2]
 
@@ -35,17 +32,18 @@ demean!(data)
 detrend!(data)
 
 # 1-hour long segment
-#print(size(S.t[1]))
 one_hour_starttime = S.t[1][1, 2]
 one_hour_endtime = one_hour_starttime + data_length / fs - 1 / fs
 println(one_hour_endtime - one_hour_starttime)
 slices_of_one_hour, starts_of_one_hour = slice(data, one_hour_length, one_hour_step, fs, Float64(one_hour_starttime), one_hour_endtime)
-#println(size(slices_of_one_hour))
-#println(size(starts_of_one_hour))
 
-#for i in 1:size(slices_of_one_hour, 2)
+# PSD mean of all 1-hour segments
+_, _, center_periods = get_freqs_and_periods(fs, fifteen_minute_length, smooth_width_factor)
+psd_results_mean = Array{Float64, 2}(undef, size(slices_of_one_hour, 2), size(center_periods, 1))
+#psd_results_mean = Array{Float64, 2}(undef, 1, size(center_periods, 1))
+
 println("One hour summation")
-for i in 1:1
+for i in 1:size(slices_of_one_hour, 2)
     # 15-minute long segment
     fifteen_minute_starttime = starts_of_one_hour[i]
     fifteen_minute_endtime = fifteen_minute_starttime + length(slices_of_one_hour[:, i]) / fs - 1 / fs
@@ -54,11 +52,12 @@ for i in 1:1
     #println(size(starts_of_fifteen_minute))
 
     psd_15min_fake = Array{Float64, 2}(undef, Int(fifteen_minute_length * fs), size(slices_of_fifteen_minute, 2))
+    #psd_15min_fake = Array{Float64, 2}(undef, Int(fifteen_minute_length * fs), 1)
     #println(size(psd_15min_fake))
     
     println("15 minutes summation")
-    #for j in 1:size(slices_of_fifteen_minute, 2)
-    for j in 1:1
+    for j in 1:size(slices_of_fifteen_minute, 2)
+    #for j in 1:1
         # Deep copy
         trace = deepcopy(slices_of_fifteen_minute[:, j])
 
@@ -72,7 +71,7 @@ for i in 1:1
         
         # Band-pass filter for preventing overamplification
         freqs = Array{Float32}(undef, length(trace))
-        f1, f2, f3, f4 = 0.005, 0.05, 9.8, 10.0
+        f1, f2, f3, f4 = 0.005, 0.05, 48.0, 50.0
         range!(freqs, fs)
         taper = sac_cosine_taper(freqs, f1, f2, f3, f4, fs)
         for idx in 1:length(trace)
@@ -82,94 +81,51 @@ for i in 1:1
         # Calculate PSD
         psd = calculate_psd(fft_result, fs)
 
-        psd_15min_fake[:, j] = psd
+        psd_15min_fake[:, j] = deepcopy(psd)
     end
 
-    psd_results, center_periods = summarize_psd(transpose(psd_15min_fake), fs, smooth_width_factor)
-    print(psd_results[1, :]) 
-
-    # Get PDF of this 1-hour slice
-    psd_results_mean = reshape(psd_results[1, :], 1, :)
-    pdf_mean_1_hour = summarize_pdf(psd_results_mean)
-
-    # Plot PDF of this 1-hour slice
-    period_max = log10(maximum(center_periods))
-    period_min = log10(minimum(center_periods))
-    center_periods_interval_in_logscale = log10(center_periods[2]) - log10(center_periods[1])
-
-    # Create netCDF grid
-    pdf_mean_1_hour = reshape(pdf_mean_1_hour, :)
-    pdf_mean_1_hour_grid = xyz2grd(pdf_mean_1_hour, R="$period_min/$period_max/-200/-50", I="$center_periods_interval_in_logscale/1", Z="TLA", V=true)
-
-
-    pdf_mean_1_hour_min = minimum(pdf_mean_1_hour)
-    pdf_mean_1_hour_max = maximum(pdf_mean_1_hour)
-    g_cpt = makecpt(color=:rainbow, T="$pdf_mean_1_hour_min/$pdf_mean_1_hour_max")
-    periods = collect(pdf_mean_1_hour_min:pdf_mean_1_hour_max:center_periods_interval_in_logscale)
-    powers = collect(-200:-50:1)
-
-    #grdview(pdf_mean_1_hour_grid, J="X6i/5i", frame=(xlabel="log10(Period)", ylabel="Power [10log10(m**2/sec**4/Hz)] [dB]", axes=:WSne), color=g_cpt, S=100, Q="s", N=0, V=true, Y="4.0", show=true)
-    #grdview(pdf_mean_1_hour_grid, J="X6i/5i", frame=(xlabel="log10(Period)", ylabel="Power [10log10(m**2/sec**4/Hz)] [dB]", axes=:WSne, ), color=g_cpt , V=true, show=true, colorbar=true)
-    grdview(pdf_mean_1_hour_grid, J="X6i/5i", 
-            xaxis=(annot=:auto, ticks=:auto, label="log10(Period)",), 
-            yaxis=(annot=:auto, ticks=:auto, label="Power [10log10(m**2/sec**4/Hz)] [dB]",),
-            color=g_cpt, V=true, S=100, Q="s", Y=4.0,
-            colorbar=true, show=true)
-    imshow(pdf_mean_1_hour, x=periods, y=powers; proj=:logx)
-    imshow(pdf_mean_1_hour, proj=:log)
-    colorbar!(g_cpt, B="0.02", D="6.15i/2.5i/5.0i/0.25i", V=true, show=true)
+    psd_results, _ = summarize_psd(transpose(psd_15min_fake), fs, smooth_width_factor)
+    psd_results_mean[i, :] = psd_results[1, :]
 end
 
+# Get PDF of this 1-hour slice
+#psd_results_mean = reshape(psd_results[1, :], 1, :)
+pdf_mean_1_hour = summarize_pdf(psd_results_mean)
+#println(pdf_mean_1_hour)
+open("seispdf_pdf_out.txt", "w") do io
+    writedlm(io, pdf_mean_1_hour)
+end
+open("seispdf_center_periods.txt", "w") do io
+    writedlm(io, center_periods)
+end
 
-# Taper the signal
-#cosine_taper!(data, length(data), 0.05)
-#
-## FFT
-#fft_result = compute_fft(data)
-#remove_response!(fft_result, response)
-#
-## Band-pass filter for preventing overamplification
-#freqs = Array{Float32}(undef, length(data))
-#f1, f2, f3, f4 = 0.005, 0.05, 9.8, 10.0
-#range!(freqs, fs)
-#taper = sac_cosine_taper(freqs, f1, f2, f3, f4, fs)
-#for i in 1:length(data)
-#    fft_result[i] *= taper[i]
-#end
-#
-## Calculate PSD
-#psd = calculate_psd(fft_result, fs)
-#psd = reshape(psd, 1, :) # Change to 2-D for demo purpose
-#smooth_width_factor = 1.5
-#psd_reduced, center_periods = summarize_psd(psd, fs, smooth_width_factor)
-#
-## Calculate PDF
-#psd_reduced_mean = reshape(psd_reduced[1, :], 1, :)
-#pdf_mean = summarize_pdf(psd_reduced_mean)
-#
-## Plot PDF
+#imshow(pdf_mean_1_hour, x=periods, y=powers; proj=:logx)
+#imshow(pdf_mean_1_hour)
+
+# Plot PDF of this 1-hour slice
 #period_max = log10(maximum(center_periods))
 #period_min = log10(minimum(center_periods))
 #center_periods_interval_in_logscale = log10(center_periods[2]) - log10(center_periods[1])
 #
 ## Create netCDF grid
-#pdf_mean = reshape(pdf_mean, :)
-#pdf_mean_grid = xyz2grd(pdf_mean, R="$period_min/$period_max/-200/-50", I="$center_periods_interval_in_logscale/1", Z="TLA", V=true)
+#pdf_mean_1_hour = reshape(pdf_mean_1_hour, :)
+#pdf_mean_1_hour_grid = xyz2grd(pdf_mean_1_hour, R="$period_min/$period_max/-200/-50", I="$center_periods_interval_in_logscale/1", Z="TLA", V=true)
 #
 #
-#pdf_mean_min = minimum(pdf_mean)
-#pdf_mean_max = maximum(pdf_mean)
-#g_cpt = makecpt(color=:rainbow, T="$pdf_mean_min/$pdf_mean_max")
-#periods = collect(pdf_mean_min:pdf_mean_max:center_periods_interval_in_logscale)
+#pdf_mean_1_hour_min = minimum(pdf_mean_1_hour)
+#pdf_mean_1_hour_max = maximum(pdf_mean_1_hour)
+#g_cpt = makecpt(color=:rainbow, T="$pdf_mean_1_hour_min/$pdf_mean_1_hour_max")
+#periods = collect(pdf_mean_1_hour_min:pdf_mean_1_hour_max:center_periods_interval_in_logscale)
 #powers = collect(-200:-50:1)
 #
-##grdview(pdf_mean_grid, J="X6i/5i", frame=(xlabel="log10(Period)", ylabel="Power [10log10(m**2/sec**4/Hz)] [dB]", axes=:WSne), color=g_cpt, S=100, Q="s", N=0, V=true, Y="4.0", show=true)
-##grdview(pdf_mean_grid, J="X6i/5i", frame=(xlabel="log10(Period)", ylabel="Power [10log10(m**2/sec**4/Hz)] [dB]", axes=:WSne, ), color=g_cpt , V=true, show=true, colorbar=true)
-#grdview(pdf_mean_grid, J="X6i/5i", 
+##grdview(pdf_mean_1_hour_grid, J="X6i/5i", frame=(xlabel="log10(Period)", ylabel="Power [10log10(m**2/sec**4/Hz)] [dB]", axes=:WSne), color=g_cpt, S=100, Q="s", N=0, V=true, Y="4.0", show=true)
+##grdview(pdf_mean_1_hour_grid, J="X6i/5i", frame=(xlabel="log10(Period)", ylabel="Power [10log10(m**2/sec**4/Hz)] [dB]", axes=:WSne, ), color=g_cpt , V=true, show=true, colorbar=true)
+#grdview(pdf_mean_1_hour_grid, J="X6i/5i", 
 #        xaxis=(annot=:auto, ticks=:auto, label="log10(Period)",), 
 #        yaxis=(annot=:auto, ticks=:auto, label="Power [10log10(m**2/sec**4/Hz)] [dB]",),
 #        color=g_cpt, V=true, S=100, Q="s", Y=4.0,
 #        colorbar=true, show=true)
-#imshow(pdf_mean, x=periods, y=powers; proj=:logx)
-#imshow(pdf_mean, proj=:log)
+#imshow(pdf_mean_1_hour, x=periods, y=powers; proj=:logx)
+#imshow(pdf_mean_1_hour, x=periods, y=powers)  
+#imshow(pdf_mean_1_hour, proj=:log)
 #colorbar!(g_cpt, B="0.02", D="6.15i/2.5i/5.0i/0.25i", V=true, show=true)

@@ -1,4 +1,4 @@
-export summarize_psd
+export summarize_psd, get_freqs_and_periods
 
 using Statistics: mean, median
 
@@ -28,7 +28,7 @@ function get_freqs_and_periods(sampling_rate::Float64, window_length::Int64, smo
     # Long period (i.e. low freqnency)
     fl = 0.0
     tl = smoothing_width_factor * ts
-    # Long resolvable period
+    # Longest resolvable period
     tr = window_length / 5.0
 
     # Count the lenght of left/right frequency array length
