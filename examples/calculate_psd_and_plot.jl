@@ -1,5 +1,5 @@
 using GMT
-using SeisIO: read_data
+using SeisIO: read_data, u2d, t_win
 using SeisPDF
 using DelimitedFiles
 
@@ -8,6 +8,7 @@ const one_hour_step = 1800
 const fifteen_minute_length = 900
 const fifteen_minute_step = 225
 const smooth_width_factor = 1.5
+const μs = 1e-6 # some kind of nonsense, the time in SeisIO object is μs
 
 function range!(freq, sampling_rate)
     n = size(freq, 1);
@@ -23,6 +24,7 @@ input_trace_file = ARGS[1]
 response_file = ARGS[2]
 
 S = read_data("mseed", input_trace_file, memmap=true)
+println(S.t)
 data = S.x[1]
 fs = S.fs[1]
 data_length = Int(86400 * fs) # Not a good practice
@@ -32,32 +34,37 @@ demean!(data)
 detrend!(data)
 
 # 1-hour long segment
-one_hour_starttime = S.t[1][1, 2]
+#one_hour_starttime = S.t[1][1, 2] * 1.0
+one_hour_starttime = S.t[1][1, 2] * μs
 one_hour_endtime = one_hour_starttime + data_length / fs - 1 / fs
-println(one_hour_endtime - one_hour_starttime)
-slices_of_one_hour, starts_of_one_hour = slice(data, one_hour_length, one_hour_step, fs, Float64(one_hour_starttime), one_hour_endtime)
+#println(t_win(S.t[1], S.fs[1]))
+#println(one_hour_endtime - one_hour_starttime)
+slices_of_one_hour, starts_of_one_hour = slice(data, one_hour_length, one_hour_step, fs, one_hour_starttime, one_hour_endtime)
+println(size(starts_of_one_hour, 1))
 
 # PSD mean of all 1-hour segments
 _, _, center_periods = get_freqs_and_periods(fs, fifteen_minute_length, smooth_width_factor)
 psd_results_mean = Array{Float64, 2}(undef, size(slices_of_one_hour, 2), size(center_periods, 1))
 #psd_results_mean = Array{Float64, 2}(undef, 1, size(center_periods, 1))
 
-println("One hour summation")
 for i in 1:size(slices_of_one_hour, 2)
+#for i in 1:1
+    #println("One hour summation $i")
     # 15-minute long segment
     fifteen_minute_starttime = starts_of_one_hour[i]
     fifteen_minute_endtime = fifteen_minute_starttime + length(slices_of_one_hour[:, i]) / fs - 1 / fs
     slices_of_fifteen_minute, starts_of_fifteen_minute = slice(slices_of_one_hour[:, i], fifteen_minute_length, fifteen_minute_step, fs, fifteen_minute_starttime, fifteen_minute_endtime)
     #println(size(slices_of_fifteen_minute))
-    #println(size(starts_of_fifteen_minute))
+    println(size(starts_of_fifteen_minute))
 
     psd_15min_fake = Array{Float64, 2}(undef, Int(fifteen_minute_length * fs), size(slices_of_fifteen_minute, 2))
     #psd_15min_fake = Array{Float64, 2}(undef, Int(fifteen_minute_length * fs), 1)
     #println(size(psd_15min_fake))
     
-    println("15 minutes summation")
     for j in 1:size(slices_of_fifteen_minute, 2)
     #for j in 1:1
+        #println("15 minutes summation $j")
+        #println(u2d(starts_of_fifteen_minute[j]))
         # Deep copy
         trace = deepcopy(slices_of_fifteen_minute[:, j])
 

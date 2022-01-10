@@ -19,10 +19,10 @@ function cosine_taper!(data::AbstractArray{<:Real}, N::Int64, α::Float64)
     for i in 1:(width + 1)
         w[i] = 0.5 * (1 + cos(pi * (-1 + 2.0 * (i - 1) / α / (N - 1))))
     end
-    for i in (width + 1):(N - width)
+    for i in (width + 2):(N - width - 1)
         w[i] = 1.0
     end
-    for i in (N - width + 1):N
+    for i in (N - width):N
         w[i] = 0.5 * (1 + cos(pi * (-2.0 / α + 1 + 2.0 * (i - 1) / α / (N - 1))))
     end
 
@@ -51,7 +51,7 @@ function sac_cosine_taper(freqs::AbstractArray, f1, f2, f3, f4, sampling_rate)
             taper[i] = 0.5 * (1.0 + cos(pi * (temp - f3) / (f4 - f3)))
         end
     end 
-    for i in (div(n, 2) + 1):n
+    for i in (div(n, 2) + 2):n
         taper[i] = taper[n - i + 1]
     end 
 
