@@ -7,7 +7,7 @@ const one_hour_length = 3600
 const one_hour_step = 1800
 const fifteen_minute_length = 900
 const fifteen_minute_step = 225
-const smooth_width_factor = 1.5
+const smooth_width_factor = 1.25
 const μs = 1e-6 # some kind of nonsense, the time in SeisIO object is μs
 
 function range!(freq, sampling_rate)
@@ -99,15 +99,16 @@ end
 #psd_results_mean = reshape(psd_results[1, :], 1, :)
 pdf_mean_1_hour = summarize_pdf(psd_results_mean)
 #println(pdf_mean_1_hour)
-open("seispdf_pdf_out.txt", "w") do io
+"""open("seispdf_pdf_out.txt", "w") do io
     writedlm(io, pdf_mean_1_hour)
 end
 open("seispdf_center_periods.txt", "w") do io
     writedlm(io, center_periods)
 end
-
+"""
+pdf_mean_1_hour = reverse(pdf_mean_1_hour, dims=1)
 #imshow(pdf_mean_1_hour, x=periods, y=powers; proj=:logx)
-#imshow(pdf_mean_1_hour)
+imshow(pdf_mean_1_hour)
 
 # Plot PDF of this 1-hour slice
 #period_max = log10(maximum(center_periods))
