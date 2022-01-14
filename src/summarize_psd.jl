@@ -11,7 +11,7 @@ function calculate_freq_range(sampling_rate::Float64, N::Int64)
     total_duration = delta * N
     range_arr = Array{Float64}(undef, N)
     for i in 1:N
-        range_arr[i] = i / total_duration
+        range_arr[i] = (i - 1) / total_duration
     end
 
     return range_arr
