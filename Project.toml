@@ -16,5 +16,5 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 [compat]
 FFTW = "1"
 GDAL = "1"
-GMT = "0.39"
+GMT = "0.39, 0.40"
 SeisIO = "1"
