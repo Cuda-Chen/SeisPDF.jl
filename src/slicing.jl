@@ -1,11 +1,11 @@
-export slice, ideal_start_end
+export slide, ideal_start_end
 
 using Dates
 
 # From SeisNoise
 # https://github.com/tclements/SeisNoise.jl/blob/2a816653f5119c3276421938b136c141b8fa51da/src/slicing.jl#L55
 """
-    slice(A, cc_len, cc_step, fs, starttime, endtime)
+    slide(A, cc_len, cc_step, fs, starttime, endtime)
 Cut `A` into sliding windows of length `cc_len` points and offset `cc_step` points.
 # Arguments
 - `A::AbstractArray`: 1D time series.
@@ -18,7 +18,7 @@ Cut `A` into sliding windows of length `cc_len` points and offset `cc_step` poin
 - `starts::Array`: Array of start times of each window, in Unix time. E.g to convert
         Unix time to date time, use u2d(starts[1]) = 2018-08-12T00:00:00
 """
-function slice(A::AbstractArray, cc_len::Real, cc_step::Real, fs::AbstractFloat,
+function slide(A::AbstractArray, cc_len::Real, cc_step::Real, fs::AbstractFloat,
                starttime::Float64,endtime::Float64)
     N = size(A, 1)
     window_samples = Int(cc_len * fs)

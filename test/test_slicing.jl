@@ -1,6 +1,6 @@
 # From SeisNoise
 # https://github.com/tclements/SeisNoise.jl/blob/e5210fd11c1f5004c14f288f7ad0ac1cd495a2b0/test/test_slicing.jl#L44
-@testset "slice daily data to 1-hour long segment" begin
+@testset "slide daily data to 1-hour long segment" begin
     N = 86400 # 86400 seconds long signal
     fs = 100. # 100 Hz sampling rate
     A = rand(Float64, Int(N * fs))
@@ -9,7 +9,7 @@
     starttime = d2u(DateTime(Date(now())))
     endtime = starttime + length(A) / fs - 1 / fs
 
-    out, starts = slice(A, segment_len, segment_step, fs, starttime, endtime)
+    out, starts = slide(A, segment_len, segment_step, fs, starttime, endtime)
     # test first column
     @test out[:, 1] == A[1:Int(segment_len * fs)]
     # test overlap
@@ -18,7 +18,7 @@
     @test eltype(out) == eltype(A)
 end
 
-@testset "slice 1-hour long segment to 15-minute long segment" begin
+@testset "slide 1-hour long segment to 15-minute long segment" begin
     N = 3600 # 3600 seconds long signal
     fs = 100. # 100 Hz sampling rate
     A = rand(Float64, Int(N * fs))
@@ -28,7 +28,7 @@ end
     starttime = d2u(DateTime(Date(now())))
     endtime = starttime + length(A) / fs - 1 / fs
 
-    out, starts = slice(A, segment_len, segment_step, fs, starttime, endtime)
+    out, starts = slide(A, segment_len, segment_step, fs, starttime, endtime)
     # test first column
     @test out[:, 1] == A[1:Int(segment_len * fs)]
     # test overlap
@@ -48,7 +48,7 @@ end
     expect_length = 48
 
     starts, ends = ideal_start_end(starttime, endtime, fs, cc_len, cc_step)
-    # test number of ideal time slices
+    # test number of ideal time slides
     @test size(starts, 1) == expect_length
     @test size(ends, 1) == expect_length
     # test starttime and endtime

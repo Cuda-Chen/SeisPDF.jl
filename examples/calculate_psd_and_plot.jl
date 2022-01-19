@@ -1,7 +1,8 @@
 using GMT
-using SeisIO: read_data, u2d, t_win
+using SeisIO: read_data, u2d, t_win, d2u
 using SeisPDF
 using DelimitedFiles
+using Dates
 
 const one_hour_length = 3600
 const one_hour_step = 1800
@@ -20,6 +21,24 @@ function range!(freq, sampling_rate)
     end
 end
 
+function slide_ind(startslide::AbstractFloat,endslide::AbstractFloat,fs::AbstractFloat, ideal_starttime::AbstractFloat)
+    starttime = ideal_starttime
+    startind = convert(Int,round((startslide - starttime) * fs)) + 1
+    endind = convert(Int,round((endslide - starttime) * fs)) + 1
+    return startind,endind
+end
+
+"""
+    nearest_start_end(S::DateTime,E::DateTime, cc_len::Int, cc_step::Int)
+Return best possible start, end times for given starttime `S` and endtime `E`.
+"""
+function nearest_start_end(S::DateTime, E::DateTime, fs::Float64, cc_len::Real, cc_step::Real)
+    ideal_start = DateTime(Date(S)) # midnight of same day
+    starts = Array(ideal_start:Second(cc_step):E)
+    ends = starts .+ Second(cc_len) .- Millisecond(convert(Int,1. / fs * 1e3))
+    return d2u(starts[findfirst(x -> x >= S, starts)]), d2u(ends[findlast(x -> x <= E,ends)])
+end
+
 input_trace_file = ARGS[1]
 response_file = ARGS[2]
 
@@ -30,47 +49,63 @@ fs = S.fs[1]
 data_length = Int(86400 * fs) # Not a good practice
 response = read_resp_from_sacpz(response_file, fs, length(data))
 
-demean!(data)
-detrend!(data)
+#demean!(data)
+#detrend!(data)
 
 # 1-hour long segment
 #one_hour_starttime = S.t[1][1, 2] * 1.0
 one_hour_starttime = S.t[1][1, 2] * μs
 one_hour_endtime = one_hour_starttime + data_length / fs - 1 / fs
+startslide, endslide = nearest_start_end(u2d(one_hour_starttime), u2d(one_hour_endtime), fs, one_hour_length, one_hour_step)
 #println(t_win(S.t[1], S.fs[1]))
 #println(one_hour_endtime - one_hour_starttime)
-slices_of_one_hour, starts_of_one_hour = slice(data, one_hour_length, one_hour_step, fs, one_hour_starttime, one_hour_endtime)
-println(size(starts_of_one_hour, 1))
+#print(endslide - startslide)
+println("$(u2d(one_hour_starttime)), $(u2d(one_hour_endtime))")
+println("$(u2d(startslide)), $(u2d(endslide))")
+startidx, endidx = slide_ind(startslide, endslide, fs, one_hour_starttime)
+println("$startidx, $endidx")
+slides_of_one_hour, starts_of_one_hour = slide(@view(data[startidx:endidx]), one_hour_length, one_hour_step, fs, startslide, endslide)
+#println(size(starts_of_one_hour, 1))
 
 # PSD mean of all 1-hour segments
 _, _, center_periods = get_freqs_and_periods(fs, fifteen_minute_length, smooth_width_factor)
-psd_results_mean = Array{Float64, 2}(undef, size(slices_of_one_hour, 2), size(center_periods, 1))
+psd_results_mean = Array{Float64, 2}(undef, size(slides_of_one_hour, 2), size(center_periods, 1))
 #psd_results_mean = Array{Float64, 2}(undef, 1, size(center_periods, 1))
 
-for i in 1:size(slices_of_one_hour, 2)
+for i in 1:size(slides_of_one_hour, 2)
 #for i in 1:1
     #println("One hour summation $i")
     # 15-minute long segment
     fifteen_minute_starttime = starts_of_one_hour[i]
-    fifteen_minute_endtime = fifteen_minute_starttime + length(slices_of_one_hour[:, i]) / fs - 1 / fs
-    slices_of_fifteen_minute, starts_of_fifteen_minute = slice(slices_of_one_hour[:, i], fifteen_minute_length, fifteen_minute_step, fs, fifteen_minute_starttime, fifteen_minute_endtime)
-    #println(size(slices_of_fifteen_minute))
-    println(size(starts_of_fifteen_minute))
+    fifteen_minute_endtime = fifteen_minute_starttime + length(slides_of_one_hour[:, i]) / fs - 1 / fs
+    fifteen_minute_startslide, fifteen_minute_endslide = nearest_start_end(u2d(fifteen_minute_starttime), u2d(fifteen_minute_endtime), fs, fifteen_minute_length, fifteen_minute_step)
+    fifteen_minute_startidx, fifteen_minute_endidx = slide_ind(fifteen_minute_startslide, fifteen_minute_endslide, fs, fifteen_minute_starttime)
+    slides_of_fifteen_minute, starts_of_fifteen_minute = slide(@view(slides_of_one_hour[fifteen_minute_startidx:fifteen_minute_endidx, i]), 
+                                                               fifteen_minute_length, fifteen_minute_step, fs, fifteen_minute_starttime, fifteen_minute_endtime)
+    #println(size(slides_of_fifteen_minute))
+    #println(size(starts_of_fifteen_minute))
 
-    psd_15min_fake = Array{Float64, 2}(undef, Int(fifteen_minute_length * fs), size(slices_of_fifteen_minute, 2))
+    psd_15min_fake = Array{Float64, 2}(undef, Int(fifteen_minute_length * fs), size(slides_of_fifteen_minute, 2))
     #psd_15min_fake = Array{Float64, 2}(undef, Int(fifteen_minute_length * fs), 1)
     #println(size(psd_15min_fake))
     
-    for j in 1:size(slices_of_fifteen_minute, 2)
+    for j in 1:size(slides_of_fifteen_minute, 2)
     #for j in 1:1
         #println("15 minutes summation $j")
         #println(u2d(starts_of_fifteen_minute[j]))
         # Deep copy
-        trace = deepcopy(slices_of_fifteen_minute[:, j])
+        trace = deepcopy(slides_of_fifteen_minute[:, j])
+        #for i in 1:10
+        #    print("$(trace[i]) ")
+        #end
+        #println()
+
+        demean!(trace)
+        detrend!(trace)
 
         # Taper the signal
         cosine_taper!(trace, length(trace), 0.05)
-        
+                
         # FFT
         fft_result = compute_fft(trace)
         # Remove instrument response
@@ -90,12 +125,13 @@ for i in 1:size(slices_of_one_hour, 2)
 
         psd_15min_fake[:, j] = deepcopy(psd)
     end
+    #println("===")
 
     psd_results, _ = summarize_psd(transpose(psd_15min_fake), fs, smooth_width_factor)
     psd_results_mean[i, :] = psd_results[1, :]
 end
 
-# Get PDF of this 1-hour slice
+# Get PDF of this 1-hour slide
 #psd_results_mean = reshape(psd_results[1, :], 1, :)
 pdf_mean_1_hour = summarize_pdf(psd_results_mean)
 #println(pdf_mean_1_hour)
@@ -110,7 +146,7 @@ pdf_mean_1_hour = reverse(pdf_mean_1_hour, dims=1)
 #imshow(pdf_mean_1_hour, x=periods, y=powers; proj=:logx)
 imshow(pdf_mean_1_hour)
 
-# Plot PDF of this 1-hour slice
+# Plot PDF of this 1-hour slide
 #period_max = log10(maximum(center_periods))
 #period_min = log10(minimum(center_periods))
 #center_periods_interval_in_logscale = log10(center_periods[2]) - log10(center_periods[1])
