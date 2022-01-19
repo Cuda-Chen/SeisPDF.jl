@@ -36,3 +36,22 @@ end
     @test length(starts) == size(out, 2)
     @test eltype(out) == eltype(A)
 end
+
+@testset "slide to 1-hour long ideal times" begin
+    fs = 100.
+    cc_len = 3600
+    cc_step = 1800
+    time_len = 86400
+    starttime = DateTime(Date(now()))
+    endtime = starttime + Second(time_len) - Millisecond(convert(Int,1. / fs * 1e3))
+
+    expect_length = 48
+
+    starts, ends = ideal_start_end(starttime, endtime, fs, cc_len, cc_step)
+    # test number of ideal time slices
+    @test size(starts, 1) == expect_length
+    @test size(ends, 1) == expect_length
+    # test starttime and endtime
+    @test starts[1] == starttime
+    @test ends[end - 1] == endtime
+end

@@ -1,4 +1,6 @@
-export slice
+export slice, ideal_start_end
+
+using Dates
 
 # From SeisNoise
 # https://github.com/tclements/SeisNoise.jl/blob/2a816653f5119c3276421938b136c141b8fa51da/src/slicing.jl#L55
@@ -35,9 +37,20 @@ function slice(A::AbstractArray, cc_len::Real, cc_step::Real, fs::AbstractFloat,
         out = Array{eltype(A),2}(undef, window_samples,length(starts))
         s = convert.(Int, round.((hcat(starts,ends) .- starttime) .* fs .+ 1.))
         @inbounds for ii in eachindex(starts)
-            out[:,ii] .= @view(A[s[ii,1]:s[ii,1] + window_samples - 1]) # To make sure dimension is consistent
+            #out[:,ii] .= @view(A[s[ii,1]:s[ii,1] + window_samples - 1]) # To make sure dimension is consistent
+            out[:,ii] .= @view(A[s[ii,1]:s[ii,2]])
         end
 
     end
   return out, starts
+end
+
+"""
+    ideal_start_end(S::DateTime, E::DateTime, cc_len::Int, cc_step::Int)
+Return ideal start and end times.
+"""
+function ideal_start_end(S::DateTime, E::DateTime, fs::Float64, cc_len::Real, cc_step::Real)
+    starts = Array(S:Second(cc_step):E)
+    ends = starts .+ Second(cc_len) .- Millisecond(convert(Int,1. / fs * 1e3))
+    return starts, ends
 end
