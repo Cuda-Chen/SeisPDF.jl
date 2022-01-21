@@ -16,6 +16,8 @@
     @test out[Int(segment_step*fs)+1:end, 1] == out[1:Int(segment_step*fs), 2]
     @test length(starts) == size(out,2)
     @test eltype(out) == eltype(A)
+    # test number of slice
+    @test size(starts, 1) == 47
 end
 
 @testset "slide 1-hour long segment to 15-minute long segment" begin
@@ -43,9 +45,9 @@ end
     cc_step = 1800
     time_len = 86400
     starttime = DateTime(Date(now()))
-    endtime = starttime + Second(time_len) - Millisecond(convert(Int,1. / fs * 1e3))
+    endtime = starttime + Second(time_len)
 
-    expect_length = 48
+    expect_length = 47
 
     starts, ends = ideal_start_end(starttime, endtime, fs, cc_len, cc_step)
     # test number of ideal time slides
@@ -53,5 +55,5 @@ end
     @test size(ends, 1) == expect_length
     # test starttime and endtime
     @test starts[1] == starttime
-    @test ends[end - 1] == endtime
+    @test ends[end] == endtime
 end

@@ -51,6 +51,9 @@ Return ideal start and end times.
 """
 function ideal_start_end(S::DateTime, E::DateTime, fs::Float64, cc_len::Real, cc_step::Real)
     starts = Array(S:Second(cc_step):E)
-    ends = starts .+ Second(cc_len) .- Millisecond(convert(Int,1. / fs * 1e3))
+    ends = starts .+ Second(cc_len)
+    ind = findlast(x -> x <= E, ends)
+    starts = starts[1:ind]
+    ends = ends[1:ind]
     return starts, ends
 end
