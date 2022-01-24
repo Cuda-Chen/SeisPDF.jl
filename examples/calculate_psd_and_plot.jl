@@ -57,7 +57,8 @@ response = read_resp_from_sacpz(response_file, fs, length(data))
 #detrend!(data)
 
 # 1-hour long segment
-one_hour_starttime = DateTime(Date(u2d(S.t[1][1, 2] * μs)))
+#one_hour_starttime = DateTime(Date(u2d(S.t[1][1, 2] * μs)))
+one_hour_starttime = DateTime(u2d(S.t[1][1, 2] * μs))
 one_hour_endtime = one_hour_starttime + Second(second_of_one_day)
 one_hour_starts, one_hour_ends = ideal_start_end(one_hour_starttime, one_hour_endtime, fs, one_hour_length, one_hour_step)
 
@@ -74,7 +75,7 @@ for i in 1:size(one_hour_starts, 1)
                                  d2u(one_hour_ends[i]),
                                  fs,
                                  S.t[1])
-    println("$startidx, $endidx")
+    #println("$startidx, $endidx")
     slides_of_fifteen_minute, starts_of_fifteen_minute = slide(@view(data[startidx:endidx]),
                                                                fifteen_minute_length,
                                                                fifteen_minute_step,
@@ -89,7 +90,8 @@ for i in 1:size(one_hour_starts, 1)
     for j in 1:size(slides_of_fifteen_minute, 2)
     #for j in 1:1
         #println("15 minutes summation $j")
-        #println(u2d(starts_of_fifteen_minute[j]))
+        println(u2d(starts_of_fifteen_minute[j]))
+        #println(slides_of_fifteen_minute[1:10, j])
         # Deep copy
         trace = deepcopy(slides_of_fifteen_minute[:, j])
         #for i in 1:10
@@ -122,7 +124,7 @@ for i in 1:size(one_hour_starts, 1)
 
         psd_15min_fake[:, j] = deepcopy(psd)
     end
-    #println("===")
+    println("===")
 
     psd_results, _ = summarize_psd(transpose(psd_15min_fake), fs, smooth_width_factor)
     psd_results_mean[i, :] = psd_results[1, :]
@@ -142,7 +144,7 @@ end
 pdf_mean_1_hour = reverse(pdf_mean_1_hour, dims=1)
 #imshow(pdf_mean_1_hour, x=periods, y=powers; proj=:logx)
 #imshow(pdf_mean_1_hour)
-imshow(pdf_mean_1_hour, savefig="foo.png", show=false)
+#imshow(pdf_mean_1_hour, savefig="foo.png", show=false)
 
 # Plot PDF of this 1-hour slide
 #period_max = log10(maximum(center_periods))
