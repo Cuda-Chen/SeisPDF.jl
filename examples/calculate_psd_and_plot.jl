@@ -4,6 +4,7 @@ using SeisPDF
 using DelimitedFiles
 using Dates
 
+const second_of_one_day = 86400
 const one_hour_length = 3600
 const one_hour_step = 1800
 const fifteen_minute_length = 900
@@ -21,11 +22,14 @@ function range!(freq, sampling_rate)
     end
 end
 
-function slide_ind(startslide::AbstractFloat,endslide::AbstractFloat,fs::AbstractFloat, ideal_starttime::AbstractFloat)
-    starttime = ideal_starttime
-    startind = convert(Int,round((startslide - starttime) * fs)) + 1
-    endind = convert(Int,round((endslide - starttime) * fs)) + 1
-    return startind,endind
+function slide_ind(starttime::AbstractFloat, endtime::AbstractFloat, fs::AbstractFloat, t::AbstractArray)
+    trace_starttime = t[1, 2] * μs
+    trace_length = t[2, 1]
+    startind = convert(Int,round((starttime - trace_starttime) * fs)) + 1
+    endind = convert(Int,round((endtime - trace_starttime) * fs)) + 1
+    startind = startind > 0 ? startind : 1
+    endind = endind <= trace_length ? endind : trace_length
+    return startind, endind
 end
 
 """
@@ -53,37 +57,30 @@ response = read_resp_from_sacpz(response_file, fs, length(data))
 #detrend!(data)
 
 # 1-hour long segment
-#one_hour_starttime = S.t[1][1, 2] * 1.0
-one_hour_starttime = S.t[1][1, 2] * μs
-one_hour_endtime = one_hour_starttime + data_length / fs - 1 / fs
-startslide, endslide = nearest_start_end(u2d(one_hour_starttime), u2d(one_hour_endtime), fs, one_hour_length, one_hour_step)
-#println(t_win(S.t[1], S.fs[1]))
-#println(one_hour_endtime - one_hour_starttime)
-#print(endslide - startslide)
-println("$(u2d(one_hour_starttime)), $(u2d(one_hour_endtime))")
-println("$(u2d(startslide)), $(u2d(endslide))")
-startidx, endidx = slide_ind(startslide, endslide, fs, one_hour_starttime)
-println("$startidx, $endidx")
-slides_of_one_hour, starts_of_one_hour = slide(@view(data[startidx:endidx]), one_hour_length, one_hour_step, fs, startslide, endslide)
-#println(size(starts_of_one_hour, 1))
+one_hour_starttime = DateTime(Date(u2d(S.t[1][1, 2] * μs)))
+one_hour_endtime = one_hour_starttime + Second(second_of_one_day)
+one_hour_starts, one_hour_ends = ideal_start_end(one_hour_starttime, one_hour_endtime, fs, one_hour_length, one_hour_step)
 
 # PSD mean of all 1-hour segments
 _, _, center_periods = get_freqs_and_periods(fs, fifteen_minute_length, smooth_width_factor)
-psd_results_mean = Array{Float64, 2}(undef, size(slides_of_one_hour, 2), size(center_periods, 1))
+psd_results_mean = Array{Float64, 2}(undef, size(one_hour_starts, 1), size(center_periods, 1))
+println(size(psd_results_mean))
 #psd_results_mean = Array{Float64, 2}(undef, 1, size(center_periods, 1))
 
-for i in 1:size(slides_of_one_hour, 2)
+for i in 1:size(one_hour_starts, 1)
 #for i in 1:1
-    #println("One hour summation $i")
     # 15-minute long segment
-    fifteen_minute_starttime = starts_of_one_hour[i]
-    fifteen_minute_endtime = fifteen_minute_starttime + length(slides_of_one_hour[:, i]) / fs - 1 / fs
-    fifteen_minute_startslide, fifteen_minute_endslide = nearest_start_end(u2d(fifteen_minute_starttime), u2d(fifteen_minute_endtime), fs, fifteen_minute_length, fifteen_minute_step)
-    fifteen_minute_startidx, fifteen_minute_endidx = slide_ind(fifteen_minute_startslide, fifteen_minute_endslide, fs, fifteen_minute_starttime)
-    slides_of_fifteen_minute, starts_of_fifteen_minute = slide(@view(slides_of_one_hour[fifteen_minute_startidx:fifteen_minute_endidx, i]), 
-                                                               fifteen_minute_length, fifteen_minute_step, fs, fifteen_minute_starttime, fifteen_minute_endtime)
-    #println(size(slides_of_fifteen_minute))
-    #println(size(starts_of_fifteen_minute))
+    startidx, endidx = slide_ind(d2u(one_hour_starts[i]),
+                                 d2u(one_hour_ends[i]),
+                                 fs,
+                                 S.t[1])
+    println("$startidx, $endidx")
+    slides_of_fifteen_minute, starts_of_fifteen_minute = slide(@view(data[startidx:endidx]),
+                                                               fifteen_minute_length,
+                                                               fifteen_minute_step,
+                                                               fs,
+                                                               d2u(one_hour_starts[i]),
+                                                               d2u(one_hour_ends[i]))
 
     psd_15min_fake = Array{Float64, 2}(undef, Int(fifteen_minute_length * fs), size(slides_of_fifteen_minute, 2))
     #psd_15min_fake = Array{Float64, 2}(undef, Int(fifteen_minute_length * fs), 1)
@@ -144,7 +141,8 @@ end
 """
 pdf_mean_1_hour = reverse(pdf_mean_1_hour, dims=1)
 #imshow(pdf_mean_1_hour, x=periods, y=powers; proj=:logx)
-imshow(pdf_mean_1_hour)
+#imshow(pdf_mean_1_hour)
+imshow(pdf_mean_1_hour, savefig="foo.png", show=false)
 
 # Plot PDF of this 1-hour slide
 #period_max = log10(maximum(center_periods))
