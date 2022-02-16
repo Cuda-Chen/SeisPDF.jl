@@ -32,4 +32,6 @@ include("calculate_psd.jl")
 include("summarize_psd.jl")
 include("summarize_pdf.jl")
 
+include("plot_pdf.jl")
+
 end

@@ -141,10 +141,11 @@ open("seispdf_center_periods.txt", "w") do io
     writedlm(io, center_periods)
 end
 """
-pdf_mean_1_hour = reverse(pdf_mean_1_hour, dims=1)
+#pdf_mean_1_hour = reverse(pdf_mean_1_hour, dims=1)
 #imshow(pdf_mean_1_hour, x=periods, y=powers; proj=:logx)
 #imshow(pdf_mean_1_hour)
 #imshow(pdf_mean_1_hour, savefig="foo.png", show=false)
+plot_pdf(pdf_mean_1_hour)
 
 # Plot PDF of this 1-hour slide
 #period_max = log10(maximum(center_periods))
