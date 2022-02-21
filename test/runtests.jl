@@ -1,6 +1,6 @@
 using Test
 using Dates
-using SeisIO: d2u
+using SeisIO: d2u, SeisChannel
 
 using SeisPDF
 

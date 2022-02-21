@@ -57,3 +57,17 @@ end
     @test starts[1] == starttime
     @test ends[end] == endtime
 end
+
+@testset "slide_ind" begin
+A = rand(360000)
+fs = 100.
+# start at midnight
+starttime = DateTime(Date(now()))
+endtime = starttime + Hour(1)
+C = SeisChannel()
+C.x = A
+C.fs = fs
+C.t = [1 d2u(starttime) * 1e6;length(C.x) 0]
+
+@test slide_ind(d2u(starttime), d2u(endtime), fs, C.t) == (1, 360000)
+end

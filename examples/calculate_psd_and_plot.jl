@@ -22,15 +22,15 @@ function range!(freq, sampling_rate)
     end
 end
 
-function slide_ind(starttime::AbstractFloat, endtime::AbstractFloat, fs::AbstractFloat, t::AbstractArray)
-    trace_starttime = t[1, 2] * μs
-    trace_length = t[2, 1]
-    startind = convert(Int,round((starttime - trace_starttime) * fs)) + 1
-    endind = convert(Int,round((endtime - trace_starttime) * fs)) + 1
-    startind = startind > 0 ? startind : 1
-    endind = endind <= trace_length ? endind : trace_length
-    return startind, endind
-end
+#function slide_ind(starttime::AbstractFloat, endtime::AbstractFloat, fs::AbstractFloat, t::AbstractArray)
+#    trace_starttime = t[1, 2] * μs
+#    trace_length = t[2, 1]
+#    startind = convert(Int,round((starttime - trace_starttime) * fs)) + 1
+#    endind = convert(Int,round((endtime - trace_starttime) * fs)) + 1
+#    startind = startind > 0 ? startind : 1
+#    endind = endind <= trace_length ? endind : trace_length
+#    return startind, endind
+#end
 
 """
     nearest_start_end(S::DateTime,E::DateTime, cc_len::Int, cc_step::Int)

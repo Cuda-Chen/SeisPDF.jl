@@ -1,6 +1,8 @@
-export slide, ideal_start_end
+export slide, ideal_start_end, slide_ind
 
 using Dates
+
+const μs = 1e-6 # some kind of nonsense, the time in SeisIO object is μs
 
 # From SeisNoise
 # https://github.com/tclements/SeisNoise.jl/blob/2a816653f5119c3276421938b136c141b8fa51da/src/slicing.jl#L55
@@ -56,4 +58,18 @@ function ideal_start_end(S::DateTime, E::DateTime, fs::Float64, cc_len::Real, cc
     starts = starts[1:ind]
     ends = ends[1:ind]
     return starts, ends
+end
+
+"""
+    slide_ind(starttime::AbstractFloat, endtime::AbstractFloat, fs::AbstractFloat, t::AbstractArray)
+Return the start and end indices of a certain segment in a trace.
+"""
+function slide_ind(starttime::AbstractFloat, endtime::AbstractFloat, fs::AbstractFloat, t::AbstractArray)
+    trace_starttime = t[1, 2] * μs
+    trace_length = t[2, 1]
+    startind = convert(Int,round((starttime - trace_starttime) * fs)) + 1 
+    endind = convert(Int,round((endtime - trace_starttime) * fs)) + 1 
+    startind = startind > 0 ? startind : 1 
+    endind = endind <= trace_length ? endind : trace_length
+    return startind, endind
 end
