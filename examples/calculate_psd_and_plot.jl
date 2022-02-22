@@ -22,27 +22,6 @@ function range!(freq, sampling_rate)
     end
 end
 
-#function slide_ind(starttime::AbstractFloat, endtime::AbstractFloat, fs::AbstractFloat, t::AbstractArray)
-#    trace_starttime = t[1, 2] * μs
-#    trace_length = t[2, 1]
-#    startind = convert(Int,round((starttime - trace_starttime) * fs)) + 1
-#    endind = convert(Int,round((endtime - trace_starttime) * fs)) + 1
-#    startind = startind > 0 ? startind : 1
-#    endind = endind <= trace_length ? endind : trace_length
-#    return startind, endind
-#end
-
-"""
-    nearest_start_end(S::DateTime,E::DateTime, cc_len::Int, cc_step::Int)
-Return best possible start, end times for given starttime `S` and endtime `E`.
-"""
-function nearest_start_end(S::DateTime, E::DateTime, fs::Float64, cc_len::Real, cc_step::Real)
-    ideal_start = DateTime(Date(S)) # midnight of same day
-    starts = Array(ideal_start:Second(cc_step):E)
-    ends = starts .+ Second(cc_len) .- Millisecond(convert(Int,1. / fs * 1e3))
-    return d2u(starts[findfirst(x -> x >= S, starts)]), d2u(ends[findlast(x -> x <= E,ends)])
-end
-
 input_trace_file = ARGS[1]
 response_file = ARGS[2]
 
