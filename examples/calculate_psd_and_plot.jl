@@ -120,13 +120,13 @@ open("seispdf_center_periods.txt", "w") do io
     writedlm(io, center_periods)
 end
 """
-#pdf_mean_1_hour = reverse(pdf_mean_1_hour, dims=1)
 #imshow(pdf_mean_1_hour, x=periods, y=powers; proj=:logx)
 #imshow(pdf_mean_1_hour)
 #imshow(pdf_mean_1_hour, savefig="foo.png", show=false)
 #plot_pdf(pdf_mean_1_hour)
 
 # Plot PDF of this 1-hour slide
+pdf_mean_1_hour = reverse(pdf_mean_1_hour, dims=1)
 period_max = log10(maximum(center_periods))
 period_min = log10(minimum(center_periods))
 center_periods_interval_in_logscale = log10(center_periods[2]) - log10(center_periods[1])
@@ -135,9 +135,11 @@ powers = collect(-200:-50:1)
 pdf_mean_1_hour_min = minimum(pdf_mean_1_hour)
 pdf_mean_1_hour_max = maximum(pdf_mean_1_hour)
 g_cpt = makecpt(color=:rainbow, T="$pdf_mean_1_hour_min/$pdf_mean_1_hour_max")
-grdview(pdf_mean_1_hour, J="X6i/5i", 
+grdview(pdf_mean_1_hour, J="X6i/5i", surftype=:surface, plane=(0, :white),
         frame=(xlabel="log10(Period)", ylabel="Power [10log10(m**2/sec**4/Hz)] [dB]", axes=:WSne), 
-        color=g_cpt, S=100,  Q="s", Y="4.0", show=true)
+        color=g_cpt, S=100, Y="4.0", show=false)
+colorbar!(g_cpt, B=0.02, pos=(anchor=:RM, offset=(1.5,0), neon=true),
+          V=true, show=false, savefig="foo.png")
 #grdview(pdf_mean_1_hour, J="X6i/5i", frame=(xlabel="log10(Period)", ylabel="Power [10log10(m**2/sec**4/Hz)] [dB]", axes=:WSne), color=g_cpt, S=100, Q="s", N=0, V=true, Y="4.0", show=true)
 #
 ## Create netCDF grid
