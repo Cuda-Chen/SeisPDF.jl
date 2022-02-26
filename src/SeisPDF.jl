@@ -1,6 +1,6 @@
 module SeisPDF
 
-# Read input trace
+include("process.jl")
 
 # Read response file
 include("read_response.jl")
