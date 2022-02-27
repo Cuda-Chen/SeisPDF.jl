@@ -40,8 +40,9 @@ function plot_pdf(pdf::Array{<:Real, 2}, center_periods::Array{<:Real, 1}; mindb
     g_cpt = makecpt(color=:rainbow, T="$pdf_min/$pdf_max")
     grdimage(pdf_grid, 
              J="X6i/5i",
-             xaxis=(annot=:auto, ticks=:auto, label="log10(Period)"),
-             yaxis=(annot=:auto, ticks=:auto, label="Power [10log10(m**2/sec**4/Hz)] [dB]"),
+             frame=(axes=:WSne),
+             xaxis=(annot=1.0, label="log10(Period)"),
+             yaxis=(annot=10, ticks=5, label="Power [10log10(m**2/sec**4/Hz)] [dB]"),
              color=:rainbow, 
              show=false)
     colorbar!(g_cpt,
