@@ -6,7 +6,7 @@ describe by [McMarana 2004](https://pubs.usgs.gov/of/2005/1438/).
 
 ## TO-DO
 - [ ] release workable version
-    - [ ] plot (GMT.jl)
+    - [x] plot (using GMT.jl)
     - [x] integrate with [SeisIO](https://github.com/jpjones76/SeisIO.jl) data structure
     - [x] slide on actual timestamp range
 - [ ] GPU support
