@@ -1,5 +1,5 @@
 using GMT
-using SeisIO: read_data, u2d, t_win, d2u
+using SeisIO: read_data
 using SeisPDF
 using DelimitedFiles
 using Dates
