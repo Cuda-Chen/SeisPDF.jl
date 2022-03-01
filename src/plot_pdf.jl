@@ -2,6 +2,8 @@ export plot_pdf
 
 using GMT: xyz2grd, makecpt, grdimage, colorbar!
 
+const cmap_file = "data/psdpdf.cpt"
+
 """
     plot_pdf(pdf::Array{<:Real, 2}, center_periods::Array{<:Real, 1}; mindb::Real=-200, maxdb::Real=-50, db_interval::Real=1, kw...)
 Plot PDF.
@@ -37,13 +39,13 @@ function plot_pdf(pdf::Array{<:Real, 2}, center_periods::Array{<:Real, 1}; mindb
                        Z="LBA")
 
     # Plot
-    g_cpt = makecpt(color=:rainbow, T="$pdf_min/$pdf_max")
+    g_cpt = makecpt(color=cmap_file, T="$pdf_min/$pdf_max")
     grdimage(pdf_grid, 
              J="X6i/5i",
              frame=(axes=:WSne),
              xaxis=(annot=1.0, label="log10(Period)"),
              yaxis=(annot=10, ticks=5, label="Power [10log10(m**2/sec**4/Hz)] [dB]"),
-             color=:rainbow, 
+             color=cmap_file, 
              show=false)
     colorbar!(g_cpt,
               B=0.02, 
