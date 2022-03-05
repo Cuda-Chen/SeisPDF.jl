@@ -2,7 +2,7 @@
 
 # SeisPDF.jl
 Power Spectral Density Probability Density Functions Calculation
-describe by [McMarana 2004](https://pubs.usgs.gov/of/2005/1438/).
+described by [McNarama 2004](https://pubs.usgs.gov/of/2005/1438/).
 
 ## TO-DO
 - [ ] release workable version

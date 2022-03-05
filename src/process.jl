@@ -80,7 +80,7 @@ function process_one_channel(S::SeisData, response::AbstractArray=Array{Complex{
             
             # Band-pass filter for preventing overamplification
             freqs = Array{Float32}(undef, length(trace))
-            f1, f2, f3, f4 = 0.005, 0.05, 48.0, 50.0
+            f1, f2, f3, f4 = 0.002, 0.004, 48.0, 50.0
             range!(freqs, fs)
             taper = sac_cosine_taper(freqs, f1, f2, f3, f4, fs)
             for idx in 1:length(trace)
