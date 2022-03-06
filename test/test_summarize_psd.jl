@@ -5,7 +5,7 @@ function decibel(value::Real)
 end
 
 # Test odd-length signal
-@testset "summarize PSD" begin
+@testset "summarize PSD, divide by count" begin
     N = 90000
     fs = 100.
     num_segments = 13

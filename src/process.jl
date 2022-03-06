@@ -34,7 +34,7 @@ Optional argument `response` removes the instrument response.
 # Optional
 - `response::AbstractArray`: instrument response in frequency domain.
 """
-function process_one_channel(S::SeisData, response::AbstractArray=Array{Complex{Float64}}(undef, 0)) 
+function process_one_channel(S::SeisData, response::AbstractArray=Array{Complex{Float64}}(undef, 0); divide_by_period::Bool=false) 
     data = S.x[1]
     fs = S.fs[1]
     data_length = Int(86400 * fs) # Not a good practice
@@ -80,7 +80,7 @@ function process_one_channel(S::SeisData, response::AbstractArray=Array{Complex{
             
             # Band-pass filter for preventing overamplification
             freqs = Array{Float32}(undef, length(trace))
-            f1, f2, f3, f4 = 0.002, 0.004, 48.0, 50.0
+            f1, f2, f3, f4 = 0.002, 0.005, 48.0, 50.0
             range!(freqs, fs)
             taper = sac_cosine_taper(freqs, f1, f2, f3, f4, fs)
             for idx in 1:length(trace)
@@ -93,7 +93,7 @@ function process_one_channel(S::SeisData, response::AbstractArray=Array{Complex{
             psd_15min_fake[:, j] = deepcopy(psd)
         end
 
-        psd_results, _ = summarize_psd(transpose(psd_15min_fake), fs, smooth_width_factor)
+        psd_results, _ = summarize_psd(transpose(psd_15min_fake), fs, smooth_width_factor; divide_by_period=true)
         psd_results_mean[i, :] = psd_results[1, :]
     end
 

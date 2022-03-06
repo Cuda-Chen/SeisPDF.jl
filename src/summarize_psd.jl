@@ -58,7 +58,7 @@ function get_freqs_and_periods(sampling_rate::Float64, window_length::Int64, smo
     return left_freqs, right_freqs, center_periods
 end
 
-function summarize_psd(psd_bin::AbstractArray{<:Real, 2}, sampling_rate::Float64, smoothing_width_factor::Float64)
+function summarize_psd(psd_bin::AbstractArray{<:Real, 2}, sampling_rate::Float64, smoothing_width_factor::Float64; divide_by_period::Bool=false)
     num_segments, N = size(psd_bin)
     """psd_result = Array{eltype(psd_bin)}(undef, 4, N)
     for i in 1:N
@@ -87,7 +87,9 @@ function summarize_psd(psd_bin::AbstractArray{<:Real, 2}, sampling_rate::Float64
                     count += 1
                 end
             end
-            psd_bin_reduced[i, j] /= count
+
+            # divide by period, such non-sense
+            psd_bin_reduced[i, j] /= (divide_by_period ? center_periods[j] : count)
         end
     end
 

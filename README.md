@@ -15,6 +15,7 @@ described by [McNarama 2004](https://pubs.usgs.gov/of/2005/1438/).
 - [ ] enhancements
     - [ ] docs
     - [ ] swappable FFT libraries (e.g., kissFFT)
+    - [ ] min, max, mode PDF
 
 <!-- URLS -->
 [action-img]: https://github.com/Cuda-Chen/SeisPDF.jl/workflows/CI/badge.svg
