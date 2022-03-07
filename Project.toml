@@ -12,9 +12,10 @@ HDF5 = "f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f"
 SeisIO = "b372bb87-02dd-52bb-bcf6-c30dd83fd342"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+UnicodePlots = "b8865327-cd53-5732-bb35-84acbb429228"
 
 [compat]
 FFTW = "1"
 GDAL = "1"
-GMT = "0.39, 0.40, 0.41"
+GMT = "0.41"
 SeisIO = "1"

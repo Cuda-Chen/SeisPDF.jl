@@ -89,7 +89,7 @@ function summarize_psd(psd_bin::AbstractArray{<:Real, 2}, sampling_rate::Float64
             end
 
             # divide by period, such non-sense
-            psd_bin_reduced[i, j] /= (divide_by_period ? center_periods[j] : count)
+            psd_bin_reduced[i, j] /= (divide_by_period ? center_periods[j] : convert(eltype(psd_bin_reduced), count))
         end
     end
 

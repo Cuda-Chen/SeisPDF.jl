@@ -1,6 +1,7 @@
-export plot_pdf
+export plot_pdf, plot_pdf_in_unicode
 
 using GMT: xyz2grd, makecpt, grdimage, colorbar!
+using UnicodePlots
 
 const cmap_file = "data/psdpdf.cpt"
 
@@ -51,4 +52,18 @@ function plot_pdf(pdf::Array{<:Real, 2}, center_periods::Array{<:Real, 1}; mindb
               B=0.02, 
               pos=(anchor=:RM, offset=(1.5,0), neon=true);
               kw...)
+end
+
+"""
+    plot_pdf_in_unicode(pdf::Array{<:Real, 2})
+A plot function for plot test purpose. Usually you should not use this.
+
+# Arguments
+- pdf::Array{<:Real, 2}: a PDF matrix.
+"""
+function plot_pdf_in_unicode(pdf::Array{<:Real, 2})
+    reverse!(pdf, dims=1)
+    plt = heatmap(pdf, colormap=:jet)
+    display(plt)
+    return nothing
 end
