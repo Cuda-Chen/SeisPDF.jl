@@ -5,6 +5,7 @@ version = "0.0.1"
 
 [deps]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 FFTW = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
 GDAL = "add2ef01-049f-52c4-9ee2-e494f65e021a"
 GMT = "5752ebe1-31b9-557e-87aa-f909b540aa54"
@@ -17,5 +18,5 @@ UnicodePlots = "b8865327-cd53-5732-bb35-84acbb429228"
 [compat]
 FFTW = "1"
 GDAL = "1"
-GMT = "0.41"
+GMT = "0.39, 0.40, 0.41"
 SeisIO = "1"

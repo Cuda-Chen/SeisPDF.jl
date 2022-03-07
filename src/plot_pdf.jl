@@ -1,8 +1,11 @@
 export plot_pdf, plot_pdf_in_unicode
 
-using GMT: xyz2grd, makecpt, grdimage, colorbar!
+using DelimitedFiles
+using GMT: xyz2grd, makecpt, grdimage, colorbar!, plot!
 using UnicodePlots
 
+const high_noise_model_file = "data/highnoise.mod"
+const low_noise_model_file = "data/lownoise.mod"
 const cmap_file = "data/psdpdf.cpt"
 
 """
@@ -39,6 +42,11 @@ function plot_pdf(pdf::Array{<:Real, 2}, center_periods::Array{<:Real, 1}; mindb
                        I="$center_periods_interval_in_logscale/$db_interval",
                        Z="LBA")
 
+    high_noise_model = readdlm(high_noise_model_file)
+    low_noise_model = readdlm(low_noise_model_file)
+    high_noise_model[:, 1] = log10.(high_noise_model[:, 1])
+    low_noise_model[:, 1] = log10.(low_noise_model[:, 1])
+
     # Plot
     g_cpt = makecpt(color=cmap_file, T="$pdf_min/$pdf_max")
     grdimage(pdf_grid, 
@@ -50,8 +58,16 @@ function plot_pdf(pdf::Array{<:Real, 2}, center_periods::Array{<:Real, 1}; mindb
              show=false)
     colorbar!(g_cpt,
               B=0.02, 
-              pos=(anchor=:RM, offset=(1.5,0), neon=true);
-              kw...)
+              pos=(anchor=:RM, offset=(1.5,0), neon=true),
+              show=false)
+    plot!(high_noise_model,
+          lw=2,
+          lc=:black,
+          show=false)
+    plot!(low_noise_model,
+          lw=2,
+          lc=:black; 
+          kw...)
 end
 
 """

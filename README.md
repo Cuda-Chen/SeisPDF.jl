@@ -16,6 +16,7 @@ described by [McNarama 2004](https://pubs.usgs.gov/of/2005/1438/).
     - [ ] docs
     - [ ] swappable FFT libraries (e.g., kissFFT)
     - [ ] min, max, mode PDF
+    - [ ] read high and low noise model into memory when importing
 
 <!-- URLS -->
 [action-img]: https://github.com/Cuda-Chen/SeisPDF.jl/workflows/CI/badge.svg

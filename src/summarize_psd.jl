@@ -71,7 +71,7 @@ function summarize_psd(psd_bin::AbstractArray{<:Real, 2}, sampling_rate::Float64
         psd_result[4, i] = median(psd_bin[:, i]) # median
     end"""
 
-    # Dimension reduction technique escribed in McMarana 2004
+    # Dimension reduction technique escribed in McNamara 2004
     left_freqs, right_freqs, center_periods = get_freqs_and_periods(sampling_rate, (Int64)(N / sampling_rate), smoothing_width_factor)
     len_freqs = size(left_freqs, 1)
     estimated_freqs = calculate_freq_range(sampling_rate, N)
