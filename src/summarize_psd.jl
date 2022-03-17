@@ -106,7 +106,7 @@ function summarize_psd(psd_bin::AbstractArray{<:Real, 2}, sampling_rate::Float64
             end
         end
 
-        psd_bin_reduced[i] /= count
+        psd_bin_reduced[i] /= (divide_by_period ? center_periods[i] : convert(eltype(psd_bin_reduced), count))
     end
 
     # Set unit to decibel (dB)
