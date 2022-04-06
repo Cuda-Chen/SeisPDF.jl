@@ -10,10 +10,10 @@ Download [Julia 1.0](https://julialang.org/) or later, if you haven't already. Y
 using SeisIO: read_data
 using SeisPDF
 
-# Read input data
+# Read input data using SeisIO
 S = read_data("mseed", "your_mseed.mseed")
 
-# Read response, currently only support SACPZ file
+# Read response from a SACPZ file
 response = read_resp_from_sacpz("your_sacpz_response", S.fs[1], length(S.x[1]))
 
 # Get the PDF of this input data

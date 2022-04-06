@@ -2,5 +2,5 @@
 Calculate PDF.
 
 ```@docs
-process
+process_one_channel
 ```

@@ -30,12 +30,10 @@ Process the first channel of trace and return its PDF and center periods.
 
 # Optional
 - `response::AbstractArray`: instrument response presented in frequency domain.
-- `smooth_width_factor::Float64`: smoothing width factor to control the range
-of calculating PSD.
+- `smooth_width_factor::Float64`: smoothing width factor to control the range of calculating PSD.
 - `min_db::Int64`: minimum threshold of PDF binning. Measured in dB.
 - `max_db::Int64`: maximum threshold of PDF binning. Measured in dB.
-- `divide_by_period`: divide each PSD bin in period rather than count. Such
-a non-sense.
+- `divide_by_period`: divide each PSD bin in period rather than count. Such a non-sense.
 """
 function process_one_channel(S::SeisData; response::AbstractArray=Array{Complex{Float64}}(undef, 0), smooth_width_factor::Float64=1.25, min_db::Int64=-200, max_db::Int64=-50, divide_by_period::Bool=false) 
     data = S.x[1]
