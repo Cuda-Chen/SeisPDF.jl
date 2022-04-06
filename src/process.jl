@@ -9,7 +9,7 @@ const one_hour_length = 3600
 const one_hour_step = 1800
 const fifteen_minute_length = 900
 const fifteen_minute_step = 225
-const smooth_width_factor = 1.25
+#const smooth_width_factor = 1.25
 const μs = 1e-6 # some kind of nonsense, the time in SeisIO object is μs
 
 function range!(freq, sampling_rate)
@@ -34,7 +34,7 @@ Optional argument `response` removes the instrument response.
 # Optional
 - `response::AbstractArray`: instrument response in frequency domain.
 """
-function process_one_channel(S::SeisData, response::AbstractArray=Array{Complex{Float64}}(undef, 0); divide_by_period::Bool=false) 
+function process_one_channel(S::SeisData; response::AbstractArray=Array{Complex{Float64}}(undef, 0), smooth_width_factor::Float64=1.25, min_db::Int64=-200, max_db::Int64=-50, divide_by_period::Bool=false) 
     data = S.x[1]
     fs = S.fs[1]
     data_length = Int(86400 * fs) # Not a good practice
@@ -98,7 +98,7 @@ function process_one_channel(S::SeisData, response::AbstractArray=Array{Complex{
     end
 
     # Get PDF of this 1-hour slide
-    pdf_mean_1_hour = summarize_pdf(psd_results_mean)
+    pdf_mean_1_hour = summarize_pdf(psd_results_mean; min_db=min_db, max_db=max_db)
 
     return pdf_mean_1_hour, center_periods
 end
