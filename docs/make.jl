@@ -1,2 +1,6 @@
 using Documenter, SeisPDF
-makedocs(sitename="SeisPDF")
+makedocs(
+         modules = [SeisPDF],
+         sitename = "SeisPDF.jl",
+         authors = "Cuda-Chen",
+)
