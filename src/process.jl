@@ -22,7 +22,7 @@ function range!(freq, sampling_rate)
 end
 
 """
-    process_one_channel
+    process_one_channel(S::SeisData; response::AbstractArray=Array{Complex{Float64}}(undef, 0), smooth_width_factor::Float64=1.25, min_db::Int64=-200, max_db::Int64=-50, divide_by_period::Bool=false)
 Process the first channel of trace and return its PDF and center periods.
 
 # Arguments

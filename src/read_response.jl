@@ -1,7 +1,7 @@
 export read_resp_from_sacpz
 
 """
-    read_resp_from_sacpz
+    read_resp_from_sacpz(input_sacpz::String, sampling_rate::Float64, N::Int; flag::Int=2)
 Read instrument response represented in SACPZ file.
 
 # Arguments

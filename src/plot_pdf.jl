@@ -9,7 +9,7 @@ const low_noise_model_file = "data/lownoise.mod"
 const cmap_file = "data/psdpdf.cpt"
 
 """
-    plot_pdf
+    plot_pdf(pdf::Array{<:Real, 2}, center_periods::Array{<:Real, 1}; mindb::Real=-200, maxdb::Real=-50, db_interval::Real=1, kw...)
 Plot PDF using GMT.jl.
 
 # Arguments
@@ -20,7 +20,7 @@ Plot PDF using GMT.jl.
 - `mindb::Real`: the minimum range of PDF. Measured in dB.
 - `maxdb::Real`: the maximum range of PDF. Measured in dB.
 - `db_interval::Real`: the interval of PDF. Measured in dB.
-- `kw`: the keyword arguments passed to GMT for controlling GMT. For example:
+- `kw`: the keyword arguments passed to GMT.jl. For example:
     - You can use `plot_pdf(pdf, center_periods; show=true)` just to show the graph.
     - You can use `plot_pdf(pdf, center_periods; show=true, savefig="foo.png")` to show and save the graph to "foo.png".
     - You can use `plot_pdf(pdf, center_periods; show=false, savefig="foo.png")` to just save the graph to "foo.png".
@@ -71,7 +71,7 @@ function plot_pdf(pdf::Array{<:Real, 2}, center_periods::Array{<:Real, 1}; mindb
 end
 
 """
-    plot_pdf_in_unicode
+    plot_pdf_in_unicode(pdf::Array{<:Real, 2})
 A plot function for plot test purpose. Usually you should not use this.
 
 # Arguments
