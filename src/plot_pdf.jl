@@ -9,8 +9,8 @@ const low_noise_model_file = "data/lownoise.mod"
 const cmap_file = "data/psdpdf.cpt"
 
 """
-    plot_pdf(pdf::Array{<:Real, 2}, center_periods::Array{<:Real, 1}; mindb::Real=-200, maxdb::Real=-50, db_interval::Real=1, kw...)
-Plot PDF.
+    plot_pdf
+Plot PDF using GMT.jl.
 
 # Arguments
 - `pdf::Array{<:Real, 2}`: the matrix storing PDF.
@@ -71,11 +71,11 @@ function plot_pdf(pdf::Array{<:Real, 2}, center_periods::Array{<:Real, 1}; mindb
 end
 
 """
-    plot_pdf_in_unicode(pdf::Array{<:Real, 2})
+    plot_pdf_in_unicode
 A plot function for plot test purpose. Usually you should not use this.
 
 # Arguments
-- pdf::Array{<:Real, 2}: a PDF matrix.
+- `pdf::Array{<:Real, 2}`: a PDF matrix.
 """
 function plot_pdf_in_unicode(pdf::Array{<:Real, 2})
     reverse!(pdf, dims=1)
