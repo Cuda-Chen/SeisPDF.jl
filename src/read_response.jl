@@ -1,9 +1,21 @@
 export read_resp_from_sacpz
 
-# Set the response to acceleration
-const flag = 2
+"""
+    read_resp_from_sacpz
+Read instrument response represented in SACPZ file.
 
-function read_resp_from_sacpz(input_sacpz::String, sampling_rate::Float64, N::Int)
+# Arguments
+- `input_sacpz::String`: The file path of SACPZ file.
+- `sampling_rate::Float64`: The sampling rate of trace.
+- `N::Int`: The length of trace. Measured in number of data samples.
+
+# Optional
+- `flag::Int`: The flag indicated the type of instrument.
+    - Set `0` for Vibrometer.
+    - Set `1` for Velometer.
+    - Set `2` for Accelerometer.
+"""
+function read_resp_from_sacpz(input_sacpz::String, sampling_rate::Float64, N::Int; flag::Int=2)
     read_zeros = false
     read_poles = false
     zeros = Array{Complex{Float64}}(undef, 1)
@@ -40,14 +52,15 @@ function read_resp_from_sacpz(input_sacpz::String, sampling_rate::Float64, N::In
         end
     end
   
-    return create_resp(poles, zeros, constant, sampling_rate, N)
+    return create_resp(poles, zeros, constant, sampling_rate, N, flag)
 end
 
 function create_resp(poles::Vector{Complex{Float64}}, 
                      zeros::Vector{Complex{Float64}},
                      constant::Float64,
                      sampling_rate::Float64,
-                     N::Int)
+                     N::Int,
+                     flag::Int)
     freqs = Vector{Float64}(undef, N)
     delta = 1. / sampling_rate
     total_duration = delta * N
