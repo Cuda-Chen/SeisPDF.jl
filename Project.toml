@@ -18,7 +18,6 @@ UnicodePlots = "b8865327-cd53-5732-bb35-84acbb429228"
 [compat]
 FFTW = "1"
 GDAL = "1"
-GMT = "0.39, 0.40, 0.41"
 SeisIO = "1"
 UnicodePlots = "2"
 julia = "1"

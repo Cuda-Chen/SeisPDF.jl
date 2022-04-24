@@ -1,7 +1,7 @@
-export plot_pdf, plot_pdf_in_unicode
+export plot_pdf, plot_pdf_in_unicode, plot_logo
 
 using DelimitedFiles
-using GMT: xyz2grd, makecpt, grdimage, colorbar!, plot!
+using GMT: basemap, xyz2grd, makecpt, grdimage, colorbar!, plot!
 using UnicodePlots
 
 const high_noise_model_file = "data/highnoise.mod"
@@ -82,4 +82,36 @@ function plot_pdf_in_unicode(pdf::Array{<:Real, 2})
     plt = heatmap(pdf, colormap=:jet)
     display(plt)
     return nothing
+end
+
+function plot_logo(pdf::Array{<:Real, 2}, center_periods::Array{<:Real, 1}; mindb::Real=-200, maxdb::Real=-50, db_interval::Real=1, kw...)
+    reverse!(pdf, dims=1)
+    max_indices = [findmax(col)[2] for col in eachcol(pdf)]
+    max_indices .+= mindb
+    max_indices .+= 1 
+    center_periods = log10.(center_periods) 
+    max_probs = [center_periods max_indices]
+
+    high_noise_model = readdlm(high_noise_model_file)
+    low_noise_model = readdlm(low_noise_model_file)
+    high_noise_model[:, 1] = log10.(high_noise_model[:, 1])
+    low_noise_model[:, 1] = log10.(low_noise_model[:, 1])
+    
+    basemap(R="$(high_noise_model[end, 1])/2/$mindb/$maxdb",
+            J="X6i/5i",
+            frame=(axes=:lb),
+            par=(MAP_FRAME_PEN="#9558B2", MAP_FRAME_WIDTH=2),
+            show=false)
+    plot!(max_probs,
+          lw=2,
+          lc="#389826",
+          show=false)
+    plot!(high_noise_model,
+          lw=2,
+          lc="#4063D8",
+          show=false)
+    plot!(low_noise_model,
+          lw=2,
+          lc="#CB3C33"; 
+          kw...)
 end
