@@ -25,8 +25,10 @@ function read_resp_from_sacpz(input_sacpz::String, sampling_rate::Float64, N::In
     
     lines = readlines(input_sacpz)    
     for line in lines
-        contents = split(line, " ")
-        if contents[1] == "CONSTANT"
+        contents = split(line, [' ', '\t'], keepempty=false)
+        if contents[1] == "*"
+            continue
+        elseif contents[1] == "CONSTANT"
             constant = parse(Float64, contents[2])
         elseif contents[1] == "ZEROS"
             zeros_size = parse(Int64, contents[2])
@@ -39,9 +41,7 @@ function read_resp_from_sacpz(input_sacpz::String, sampling_rate::Float64, N::In
             read_zeros = false
             read_poles = true
         else
-            # Seems that some SACPZ file will let Julia pase as follows:
-            # "<real>", "", "<imag>"
-            num = parse(Float64, contents[1]) + parse(Float64, contents[3]) * im 
+            num = parse(Float64, contents[1]) + parse(Float64, contents[2]) * im 
             if read_zeros == true
                 zeros[zeros_cnt] = num 
                 zeros_cnt += 1
