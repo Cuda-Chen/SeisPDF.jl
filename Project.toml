@@ -1,7 +1,7 @@
 name = "SeisPDF"
 uuid = "724aefe2-fcf9-4672-ae74-24b98027dbbf"
 authors = ["Cuda Chen <clh960254@gmail.com>"]
-version = "0.0.1"
+version = "0.0.2"
 
 [deps]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
@@ -9,6 +9,7 @@ DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 FFTW = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
 GDAL = "add2ef01-049f-52c4-9ee2-e494f65e021a"
 GMT = "5752ebe1-31b9-557e-87aa-f909b540aa54"
+GMT_jll = "b68b8c3f-ed99-5bef-9675-4739d9426b26"
 SeisIO = "b372bb87-02dd-52bb-bcf6-c30dd83fd342"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 UnicodePlots = "b8865327-cd53-5732-bb35-84acbb429228"
@@ -19,7 +20,7 @@ GDAL = "1"
 SeisIO = "1"
 UnicodePlots = "2"
 julia = "1"
-GMT = "0.41"
+GMT = "1"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
