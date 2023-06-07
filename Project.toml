@@ -1,7 +1,7 @@
 name = "SeisPDF"
 uuid = "724aefe2-fcf9-4672-ae74-24b98027dbbf"
 authors = ["Cuda Chen <clh960254@gmail.com>"]
-version = "0.0.1"
+version = "0.0.2"
 
 [deps]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
