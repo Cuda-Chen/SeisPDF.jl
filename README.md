@@ -24,5 +24,5 @@ described by [McNamara 2004](https://pubs.usgs.gov/of/2005/1438/).
 <!-- URLS -->
 [action-img]: https://github.com/Cuda-Chen/SeisPDF.jl/workflows/CI/badge.svg
 [action-url]: https://github.com/Cuda-Chen/SeisPDF.jl/actions/workflows/ci.yml
-[docs-latest-img]: https://github.com/Cuda-Chen/SeisPDF.jl/workflows/docs/badge.svg
+[docs-latest-img]: https://github.com/Cuda-Chen/SeisPDF.jl/workflows/CI/badge.svg
 [docs-latest-url]: https://cuda-chen.github.io/SeisPDF.jl/
