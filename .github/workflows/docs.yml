@@ -1,13 +1,8 @@
 name: docs
 
 on:
-  pull_request:
-    branches:
-      - main
-  push:
-    branches:
-      - main
-    tags: '*'
+  release:
+    types: [published, edited]
 
 jobs:
   docs:
